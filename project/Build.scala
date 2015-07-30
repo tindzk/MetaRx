@@ -1,13 +1,10 @@
 import sbt._
 import sbt.Keys._
-import xerial.sbt.Sonatype.SonatypeKeys._
 import xerial.sbt.Sonatype.sonatypeSettings
-import org.scalajs.sbtplugin._
-import org.scalajs.sbtplugin.cross.CrossProject
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 
 object Build extends sbt.Build {
-  val buildOrganisation = "io.github.widok"
+  val buildOrganisation = "pl.metastack"
   val buildScalaVersion = "2.11.6"
   val buildScalaOptions = Seq(
     "-unchecked",
@@ -22,14 +19,14 @@ object Build extends sbt.Build {
       publishLocal := {}
     )
 
-  lazy val widok = crossProject.in(file("."))
+  lazy val metaRx = crossProject.in(file("."))
     .settings(sonatypeSettings: _*)
     .settings(
-      name := "widok",
-      version := "0.3.0-SNAPSHOT",
+      name := "MetaRx",
+      version := "0.1.0-SNAPSHOT",
 
       pomExtra :=
-        <url>http://widok.github.io/</url>
+        <url>https://github.com/MetaStack-pl/MetaRx</url>
         <licenses>
           <license>
             <name>Apache-2.0</name>
@@ -37,7 +34,7 @@ object Build extends sbt.Build {
           </license>
         </licenses>
         <scm>
-          <url>git://github.com/widok/widok.git</url>
+          <url>git@github.com:MetaStack-pl/MetaRx.git</url>
         </scm>
         <developers>
           <developer>
@@ -70,6 +67,6 @@ object Build extends sbt.Build {
       )
     )
 
-  lazy val js = widok.js
-  lazy val jvm = widok.jvm
+  lazy val js = metaRx.js
+  lazy val jvm = metaRx.jvm
 }
