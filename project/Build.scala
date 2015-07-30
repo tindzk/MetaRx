@@ -5,7 +5,7 @@ import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 
 object Build extends sbt.Build {
   val buildOrganisation = "pl.metastack"
-  val buildScalaVersion = "2.11.6"
+  val buildScalaVersion = "2.11.7"
   val buildScalaOptions = Seq(
     "-unchecked",
     "-deprecation",
