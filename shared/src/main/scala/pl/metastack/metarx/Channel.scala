@@ -239,7 +239,7 @@ trait ReadChannel[T]
     buf
   }
 
-  def partialMap[U](f: PartialFunction[T, U]): ReadChannel[U] =
+  def collect[U](f: PartialFunction[T, U]): ReadChannel[U] =
     forkUni { value =>
       Result.Next(f.lift(value).toSeq: _*)
     }

@@ -7,7 +7,7 @@ trait MapExtended[Container[_], T] {
    * Applies partial function `f` on each element; if the function is not
    * defined for the current input, it is filtered out
    */
-  def partialMap[U](f: PartialFunction[T, U]): Container[U]
+  def collect[U](f: PartialFunction[T, U]): Container[U]
 
   /**
    * Applies `f` on each element and flatten its result into the stream

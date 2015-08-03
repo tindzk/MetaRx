@@ -61,7 +61,7 @@ trait DeltaBufSet[T]
     })
 
   def filter(f: T => Boolean): DeltaBufSet[T] =
-    DeltaBufSet[T](changes.partialMap {
+    DeltaBufSet[T](changes.collect {
       case d @ Delta.Insert(value) if f(value) => d
       case d @ Delta.Remove(value) if f(value) => d
       case d @ Delta.Clear() => d

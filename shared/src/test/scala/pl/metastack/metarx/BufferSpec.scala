@@ -121,12 +121,12 @@ object BufferSpec extends SimpleTestSuite {
 
   test("headOption") {
     forallBuf(buffer => (buffer.headOption.values, buffer.head))
-    forallBuf(buffer => (buffer.headOption.partialMap { case Some(v) => v }, buffer.head))
+    forallBuf(buffer => (buffer.headOption.collect { case Some(v) => v }, buffer.head))
   }
 
   test("lastOption") {
     forallBuf(buffer => (buffer.lastOption.values, buffer.last))
-    forallBuf(buffer => (buffer.lastOption.partialMap { case Some(v) => v }, buffer.last))
+    forallBuf(buffer => (buffer.lastOption.collect { case Some(v) => v }, buffer.last))
   }
 
   test("last") {

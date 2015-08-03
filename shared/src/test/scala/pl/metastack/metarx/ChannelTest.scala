@@ -548,9 +548,9 @@ object ChannelTest extends SimpleTestSuite {
     assertEquals(value, "42")
   }
 
-  test("partialMap()") {
+  test("collect()") {
     val ch = Channel[Int]()
-    val map = ch.partialMap { case 1 => 42 }
+    val map = ch.collect { case 1 => 42 }
 
     var states = mutable.ArrayBuffer.empty[Int]
     map.attach(states += _)
@@ -563,9 +563,9 @@ object ChannelTest extends SimpleTestSuite {
     assertEquals(states, mutable.ArrayBuffer(42))
   }
 
-  test("partialMap()") {
+  test("collect()") {
     val ch = Buffer[Int](1, 2, 3).buffer
-    val map = ch.changes.partialMap { case Buffer.Delta.Insert(_, 2) => 42 }
+    val map = ch.changes.collect { case Buffer.Delta.Insert(_, 2) => 42 }
 
     var states = mutable.ArrayBuffer.empty[Int]
     map.attach(states += _)

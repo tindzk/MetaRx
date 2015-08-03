@@ -72,7 +72,7 @@ trait DeltaDict[A, B]
   }
 
   def keys: DeltaBufSet[A] =
-    DeltaBufSet[A](changes.partialMap {
+    DeltaBufSet[A](changes.collect {
       case d @ Delta.Insert(k, _) => BufSet.Delta.Insert(k)
       case d @ Delta.Remove(k) => BufSet.Delta.Remove(k)
       case d @ Delta.Clear() => BufSet.Delta.Clear()
@@ -81,7 +81,7 @@ trait DeltaDict[A, B]
   def filter(f: B => Boolean): DeltaDict[A, B] = {
     val filtered = mutable.HashSet.empty[A]
 
-    DeltaDict[A, B](changes.partialMap {
+    DeltaDict[A, B](changes.collect {
       case d @ Delta.Insert(k, v) if f(v) =>
         filtered += k
         d

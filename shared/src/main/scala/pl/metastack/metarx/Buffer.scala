@@ -113,11 +113,11 @@ trait DeltaBuffer[T]
   def takeUntil(ch: ReadChannel[_]): DeltaBuffer[T] =
     DeltaBuffer(changes.takeUntil(ch))
 
-  def insertions: ReadChannel[T] = changes.partialMap {
+  def insertions: ReadChannel[T] = changes.collect {
     case Delta.Insert(_, element) => element
   }
 
-  def removals: ReadChannel[T] = changes.partialMap {
+  def removals: ReadChannel[T] = changes.collect {
     case Delta.Remove(element) => element
   }
 
@@ -267,7 +267,7 @@ trait PollBuffer[T]
 
   /** TODO Could this be implemented more efficiently without iterating over `elements`? */
   def filter(f: T => Boolean): DeltaBuffer[T] =
-    DeltaBuffer(changes.partialMap {
+    DeltaBuffer(changes.collect {
       case Delta.Insert(Position.Head(), element) if f(element) =>
         Delta.Insert(Position.Head(), element)
 
@@ -336,10 +336,10 @@ trait PollBuffer[T]
     changes.map(_ => after$(value)).distinct
 
   def beforeOption(value: T): ReadChannel[T] =
-    changes.partialMap(Function.unlift(_ => beforeOption$(value)))
+    changes.collect(Function.unlift(_ => beforeOption$(value)))
 
   def afterOption(value: T): ReadChannel[T] =
-    changes.partialMap(Function.unlift(_ => afterOption$(value)))
+    changes.collect(Function.unlift(_ => afterOption$(value)))
 
   def before$(value: T): T = {
     val position = indexOf(value) - 1
@@ -482,7 +482,7 @@ trait PollBuffer[T]
   def flatMap[U](f: T => ReadBuffer[U]): ReadBuffer[U] =
     Buffer.flatten(map(f).buffer)
 
-  def partialMap[U](f: PartialFunction[T, U]): ReadBuffer[U] =
+  def collect[U](f: PartialFunction[T, U]): ReadBuffer[U] =
     flatMap(value => f.lift(value) match {
       case Some(v) => Buffer(v)
       case None => Buffer()
