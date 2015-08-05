@@ -15,15 +15,14 @@ object Build extends sbt.Build {
   lazy val root = project.in(file(".")).
     aggregate(js, jvm).
     settings(
-      publish := {},
-      publishLocal := {}
+      publishArtifact := false
     )
 
   lazy val metaRx = crossProject.in(file("."))
     .settings(sonatypeSettings: _*)
     .settings(
       name := "MetaRx",
-      version := "0.1.0-SNAPSHOT",
+      version := "0.1.1-SNAPSHOT",
 
       pomExtra :=
         <url>https://github.com/MetaStack-pl/MetaRx</url>
