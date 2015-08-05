@@ -3,11 +3,19 @@
 
 MetaRx implements reactive data structures for Scala and Scala.js.
 
+## Installation
+Add the following dependencies to your build configuration:
+
+```scala
+libraryDependencies += "pl.metastack" %%  "metarx" % "0.1.0"  // Scala
+libraryDependencies += "pl.metastack" %%% "metarx" % "0.1.0"  // Scala.js
+```
+
 ## Concepts
 Reactive programming is a paradigm that focuses on:
 
-a) propagation of data, specifically changes, and
-b) data flow.
+* propagation of data, specifically changes, and
+* data flow.
 
 Concretely, a data structure is said to be *reactive* (or *streaming*) if it models its state as streams. It does this by defining change objects (*deltas*) and mapping its operations onto these. The published stream is read-only and can be subscribed. If the stream does not have any subscribers, the state would not get persisted and is lost.
 
