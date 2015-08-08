@@ -297,7 +297,9 @@ trait WriteChannel[T]
   def flush(f: T => Unit)
 
   def produce(value: T) {
-    children.foreach(_.process(value))
+    synchronized {
+      children.foreach(_.process(value))
+    }
   }
 
   def produce[U](value: T, ignore: ReadChannel[U]*) {
