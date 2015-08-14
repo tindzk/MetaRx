@@ -4,17 +4,10 @@ import xerial.sbt.Sonatype.sonatypeSettings
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 
 object Build extends sbt.Build {
-  val buildOrganisation = "pl.metastack"
-  val buildScalaVersion = "2.11.7"
-  val buildScalaOptions = Seq(
-    "-unchecked",
-    "-deprecation",
-    "-encoding", "utf8"
-  )
-
-  lazy val root = project.in(file(".")).
-    aggregate(js, jvm).
-    settings(
+  lazy val root = project.in(file("."))
+    .aggregate(js, jvm)
+    .settings(
+      name := "MetaRx",
       publishArtifact := false
     )
 
@@ -45,25 +38,25 @@ object Build extends sbt.Build {
 
       testFrameworks += new TestFramework("minitest.runner.Framework"),
 
-      organization := buildOrganisation,
-      scalaVersion := buildScalaVersion,
-      scalacOptions := buildScalaOptions,
+      organization := "pl.metastack",
+      scalaVersion := "2.11.7",
+      scalacOptions := Seq(
+        "-unchecked",
+        "-deprecation",
+        "-encoding", "utf8"
+      ),
 
       autoAPIMappings := true,
       apiMappings += (scalaInstance.value.libraryJar -> url(s"http://www.scala-lang.org/api/${scalaVersion.value}/"))
     )
     .jsSettings(
-      libraryDependencies ++= Seq(
-        "org.monifu" %%% "minitest" % "0.12" % "test"
-      ),
+      libraryDependencies += "org.monifu" %%% "minitest" % "0.12" % "test",
 
       /* Use io.js for faster compilation of test cases */
       scalaJSStage in Global := FastOptStage
     )
     .jvmSettings(
-      libraryDependencies ++= Seq(
-        "org.monifu" %% "minitest" % "0.12" % "test"
-      )
+      libraryDependencies += "org.monifu" %% "minitest" % "0.12" % "test"
     )
 
   lazy val js = metaRx.js
