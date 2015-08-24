@@ -1,4 +1,6 @@
 # MetaRx
+
+[![Join the chat at https://gitter.im/MetaStack-pl/MetaRx](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/MetaStack-pl/MetaRx?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://travis-ci.org/MetaStack-pl/MetaRx.svg)](https://travis-ci.org/MetaStack-pl/MetaRx)
 
 MetaRx implements reactive data structures for Scala and Scala.js.
