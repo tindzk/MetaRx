@@ -13,10 +13,14 @@ object BufSet {
     case class Clear[T]() extends Delta[T]
   }
 
-  def apply[T](): BufSet[T] = new BufSet[T] { }
+  def apply[T](values: T*): BufSet[T] = {
+    val result = new BufSet[T]
+    values.foreach(result.insertIfNotExists)
+    result
+  }
 
   def apply[T](set: Set[T]): BufSet[T] = {
-    val result = BufSet[T]()
+    val result = new BufSet[T]
     result ++= set
     result
   }
@@ -83,7 +87,9 @@ trait StateBufSet[T] extends Disposable {
     case Delta.Insert(value) =>
       assert(!elements.contains(value), "Value already exists")
       elements += value
-    case Delta.Remove(value) => elements -= value
+    case Delta.Remove(value) =>
+      assert(elements.contains(value), "Value does not exist")
+      elements -= value
     case Delta.Clear() => elements.clear()
   }
 
@@ -153,7 +159,16 @@ trait ReadBufSet[T]
   extends PollBufSet[T]
   with DeltaBufSet[T]
 
-trait BufSet[T]
+class BufSet[T]
   extends ReadBufSet[T]
   with WriteBufSet[T]
   with StateBufSet[T]
+{
+  def insertIfNotExists(value: T) {
+    if (!contains$(value)) insert(value)
+  }
+
+  def removeIfExists(value: T) {
+    if (contains$(value)) remove(value)
+  }
+}

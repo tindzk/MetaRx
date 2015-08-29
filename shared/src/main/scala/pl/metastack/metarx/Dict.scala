@@ -14,7 +14,7 @@ object Dict {
     case class Clear[A, B]() extends Delta[A, B]
   }
 
-  def apply[A, B](): Dict[A, B] = new Dict[A, B] { }
+  def apply[A, B](): Dict[A, B] = new Dict[A, B]
 
   def apply[A, B](map: Map[A, B]): Dict[A, B] = {
     val dict = Dict[A, B]()
@@ -247,7 +247,7 @@ trait ReadDict[A, B]
   extends PollDict[A, B]
   with DeltaDict[A, B]
 
-trait Dict[A, B]
+class Dict[A, B]
   extends ReadDict[A, B]
   with WriteDict[A, B]
   with StateDict[A, B]

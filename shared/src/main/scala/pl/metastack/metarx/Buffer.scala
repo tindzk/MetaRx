@@ -32,7 +32,7 @@ object Buffer {
     case class Clear[T]() extends Delta[T]
   }
 
-  def apply[T](): Buffer[T] = new Buffer[T] { }
+  def apply[T](): Buffer[T] = new Buffer[T]
   def apply[T](elements: T*): Buffer[T] = from(elements)
 
   def from[T](elements: Seq[T]) = {
@@ -650,7 +650,7 @@ trait WriteBuffer[T]
   }
 }
 
-trait Buffer[T]
+class Buffer[T]
   extends ReadBuffer[T]
   with WriteBuffer[T]
   with StateBuffer[T]
