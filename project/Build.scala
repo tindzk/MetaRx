@@ -50,13 +50,13 @@ object Build extends sbt.Build {
       apiMappings += (scalaInstance.value.libraryJar -> url(s"http://www.scala-lang.org/api/${scalaVersion.value}/"))
     )
     .jsSettings(
-      libraryDependencies += "org.monifu" %%% "minitest" % "0.12" % "test",
+      libraryDependencies += "org.monifu" %%% "minitest" % "0.13" % "test",
 
       /* Use io.js for faster compilation of test cases */
       scalaJSStage in Global := FastOptStage
     )
     .jvmSettings(
-      libraryDependencies += "org.monifu" %% "minitest" % "0.12" % "test"
+      libraryDependencies += "org.monifu" %% "minitest" % "0.13" % "test"
     )
 
   lazy val js = metaRx.js
