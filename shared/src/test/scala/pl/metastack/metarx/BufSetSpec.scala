@@ -27,4 +27,16 @@ object BufSetSpec extends SimpleTestSuite {
       set.remove(42)
     }
   }
+
+  test("Replace") {
+    val set = BufSet(1, 2, 3)
+    set.replace(2, 4)
+    assertEquals(set.toSet$, Set(1, 3, 4))
+  }
+
+  test("Update") {
+    val set = BufSet(1, 2, 3)
+    set.update(_ + 1)
+    assertEquals(set.toSet$, Set(2, 3, 4))
+  }
 }

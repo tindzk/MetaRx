@@ -121,6 +121,11 @@ trait WriteBufSet[T]
     values.foreach(remove)
   }
 
+  def replace(reference: T, element: T) {
+    remove(reference)
+    insert(element)
+  }
+
   def set(values: Set[T]) {
     clear()
     insertAll(values)
@@ -147,6 +152,10 @@ trait PollBufSet[T]
 
   val changes: ReadChannel[Delta[T]]
 
+  def foreach(f: T => Unit) {
+    elements.foreach(f)
+  }
+
   def isEmpty$: Boolean = elements.isEmpty
   def nonEmpty$: Boolean = elements.nonEmpty
   def contains$(value: T): Boolean = elements.contains(value)
@@ -170,5 +179,9 @@ class BufSet[T]
 
   def removeIfExists(value: T) {
     if (contains$(value)) remove(value)
+  }
+
+  def update(f: T => T) {
+    set(elements.map(f).toSet)
   }
 }
