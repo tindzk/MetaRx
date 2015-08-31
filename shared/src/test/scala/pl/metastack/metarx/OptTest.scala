@@ -72,4 +72,15 @@ object OptTest extends SimpleTestSuite {
 
     assertEquals(elems, mutable.ArrayBuffer(None, Some(1), None, Some(2)))
   }
+
+  test("map()") {
+    val elements = mutable.ArrayBuffer.empty[Boolean]
+
+    val x = Opt[Int]()
+    x.map(_.isDefined).attach(elements += _)
+    x := Some(42)
+    x := None
+
+    assertEquals(elements, mutable.ArrayBuffer(false, true, false))
+  }
 }
