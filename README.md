@@ -8,8 +8,8 @@ MetaRx implements reactive data structures for Scala and Scala.js.
 Add the following dependencies to your build configuration:
 
 ```scala
-libraryDependencies += "pl.metastack" %%  "metarx" % "0.1.0"  // Scala
-libraryDependencies += "pl.metastack" %%% "metarx" % "0.1.0"  // Scala.js
+libraryDependencies += "pl.metastack" %%  "metarx" % "0.1.1"  // Scala
+libraryDependencies += "pl.metastack" %%% "metarx" % "0.1.1"  // Scala.js
 ```
 
 ## Concepts
