@@ -1,8 +1,7 @@
 package pl.metastack.metarx
 
 trait ReadPartialChannel[T]
-  extends ReadChannel[Option[T]]
-  with ReadStateChannel[Option[T]]
+  extends ReadStateChannel[Option[T]]
   with reactive.poll.Empty
   with reactive.poll.Count[T]
   with reactive.stream.PartialChannel[T]

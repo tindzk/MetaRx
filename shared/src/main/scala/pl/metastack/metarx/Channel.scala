@@ -99,6 +99,21 @@ trait ReadChannel[T]
     res
   }
 
+  def zip[U](other: ReadChannel[U]): ReadChannel[(T, U)] = {
+    val that = this
+
+    val res = new RootChannel[(T, U)] {
+      def flush(f: ((T, U)) => Unit) {
+        that.flush(t => other.flush(u => f((t, u))))
+      }
+    }
+
+    attach(t => other.flush(u => res.produce((t, u))))
+    other.attach(u => flush(t => res.produce((t, u))))
+
+    res
+  }
+
   def child(): ReadChannel[T] =
     forkUni(t => Result.Next(t))
 
@@ -597,7 +612,6 @@ trait RootChannel[T]
 }
 
 trait ReadStateChannel[T] extends ReadChannel[T] {
-  def zip[U](other: ReadChannel[U]): ReadChannel[(T, U)]
   def get: T
 }
 
@@ -605,21 +619,6 @@ trait ReadStateChannel[T] extends ReadChannel[T] {
 trait StateChannel[T] extends Channel[T] with ReadStateChannel[T] {
   def update(f: T => T) {
     flush(t => produce(f(t)))
-  }
-
-  def zip[U](other: ReadChannel[U]): ReadChannel[(T, U)] = {
-    val that = this
-
-    val res = new RootChannel[(T, U)] {
-      def flush(f: ((T, U)) => Unit) {
-        that.flush(t => other.flush(u => f((t, u))))
-      }
-    }
-
-    attach(t => other.flush(u => res.produce((t, u))))
-    other.attach(u => flush(t => res.produce((t, u))))
-
-    res
   }
 
   // Shapeless has not been built yet for Scala.js 0.6.0
