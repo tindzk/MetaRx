@@ -326,23 +326,41 @@ object ChannelTest extends SimpleTestSuite {
   }
 
   test("zip()") {
-    val ch = Var[Int](0)
+    val ch = Var(0)
+    val ch2 = Var(1)
+
+    val zip = ch.zip(ch2)
+
+    var values = mutable.ArrayBuffer.empty[(Int, Int)]
+    zip.attach(values += _)
+
+    assertEquals(values, Seq((0, 1)))
+
+    ch := 2
+    assertEquals(values, Seq((0, 1), (2, 1)))
+  }
+
+  test("zip()") {
+    val ch = Var(0)
     val ch2 = Channel[Int]()
 
     val zip = ch.zip(ch2)
 
-    var value = (0, 0)
-    zip.attach(cur => value = cur)
+    var value = (-1, -1)
+    zip.attach(value = _)
+
+    ch2 := 42
+    assertEquals(value, (0, 42))
 
     ch := 23
     ch2 := 42
-    assertEquals(value == (23, 42), true)
+    assertEquals(value, (23, 42))
 
     ch := 24
-    assertEquals(value == (23, 42), true)
+    assertEquals(value, (23, 42))
 
     ch2 := 43
-    assertEquals(value == (24, 43), true)
+    assertEquals(value, (24, 43))
   }
 
   test("flatMap()") {
@@ -594,12 +612,12 @@ object ChannelTest extends SimpleTestSuite {
     assertEquals(wrStates, mutable.ArrayBuffer(2))
   }
 
-  test("combine()") {
+  test("zip()") {
     val var1 = Var(1)
     val var2 = Var(2)
 
     var values = mutable.ArrayBuffer.empty[(Int, Int)]
-    var1.combine(var2).attach(values += _)
+    var1.zip(var2).attach(values += _)
 
     assertEquals(values, Seq((1, 2)))
 
