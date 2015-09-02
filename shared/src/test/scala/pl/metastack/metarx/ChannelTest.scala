@@ -593,4 +593,20 @@ object ChannelTest extends SimpleTestSuite {
     assertEquals(states, mutable.ArrayBuffer(1, 2))
     assertEquals(wrStates, mutable.ArrayBuffer(2))
   }
+
+  test("combine()") {
+    val var1 = Var(1)
+    val var2 = Var(2)
+
+    var values = mutable.ArrayBuffer.empty[(Int, Int)]
+    var1.combine(var2).attach(values += _)
+
+    assertEquals(values, Seq((1, 2)))
+
+    var1 := 3
+    assertEquals(values, Seq((1, 2), (3, 2)))
+
+    var2 := 4
+    assertEquals(values, Seq((1, 2), (3, 2), (3, 4)))
+  }
 }

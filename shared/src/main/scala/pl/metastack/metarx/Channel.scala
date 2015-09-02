@@ -598,7 +598,7 @@ trait RootChannel[T]
 
 trait ReadStateChannel[T] extends ReadChannel[T] {
   def zip[U](other: ReadChannel[U]): ReadChannel[(T, U)]
-  def combine[U](other: StateChannel[U]): ReadChannel[(T, U)]
+  def combine[U](other: ReadChannel[U]): ReadChannel[(T, U)]
   def get: T
 }
 
@@ -616,12 +616,20 @@ trait StateChannel[T] extends Channel[T] with ReadStateChannel[T] {
   }
 
   /** In contrast to zip() this produces a new value for each change of
-    * `this` or `other`. Therefore, `other` must be a StateChannel.
+    * `this` or `other`.
     */
-  def combine[U](other: StateChannel[U]): ReadChannel[(T, U)] = {
-    val res = Channel[(T, U)]()
+  def combine[U](other: ReadChannel[U]): ReadChannel[(T, U)] = {
+    val that = this
+
+    val res = new RootChannel[(T, U)] {
+      def flush(f: ((T, U)) => Unit) {
+        that.flush(t => other.flush(u => f((t, u))))
+      }
+    }
+
     attach(t => other.flush(u => res.produce((t, u))))
     other.attach(u => flush(t => res.produce((t, u))))
+
     res
   }
 
