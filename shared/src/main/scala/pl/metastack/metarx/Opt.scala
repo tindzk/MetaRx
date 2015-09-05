@@ -11,6 +11,12 @@ trait ReadPartialChannel[T]
       case None        => Result.Next()
       case Some(value) => Result.Next(value)
     }
+
+  def mapOrElse[U](f: T => U, default: U): ReadChannel[U] =
+    forkUni {
+      case None        => Result.Next(default)
+      case Some(value) => Result.Next(f(value))
+    }
 }
 
 trait PartialChannel[T]
