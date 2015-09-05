@@ -54,7 +54,7 @@ trait Filter[Container[_] <: Size, A, B] {
    * @note Buffers: When the item is removed, it will produce false.
    * @note Channels: Once true, will never produce any other value.
    */
-  def contains(value: B): ReadChannel[Boolean] = filter(_ == value).nonEmpty
+  def has(value: B): ReadChannel[Boolean] = filter(_ == value).nonEmpty
 
   /**
    * Partitions stream into two sub-stream

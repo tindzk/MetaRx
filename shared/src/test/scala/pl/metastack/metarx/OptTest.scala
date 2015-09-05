@@ -94,4 +94,16 @@ object OptTest extends SimpleTestSuite {
 
     assertEquals(elements, mutable.ArrayBuffer(42, 24, 42))
   }
+
+  test("contains()") {
+    val elements = mutable.ArrayBuffer.empty[Boolean]
+
+    val x = Opt[Int]()
+    x.contains(5).attach(elements += _)
+    x := Some(23)
+    x := Some(5)
+    x := None
+
+    assertEquals(elements, mutable.ArrayBuffer(false, false, true, false))
+  }
 }

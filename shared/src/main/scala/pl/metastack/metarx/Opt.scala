@@ -29,6 +29,12 @@ trait ReadPartialChannel[T]
       case None        => default
       case Some(value) => Var(value)
     }
+
+  def contains(value: T): ReadChannel[Boolean] =
+    map {
+      case Some(`value`) => true
+      case _             => false
+    }
 }
 
 trait PartialChannel[T]

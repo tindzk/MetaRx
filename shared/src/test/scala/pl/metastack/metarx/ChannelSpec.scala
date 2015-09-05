@@ -62,8 +62,8 @@ object ChannelSpec extends SimpleTestSuite {
     forallChVal((ch, _) => f(ch))
   }
 
-  test("contains") {
-    forallChVal((ch, value) => (ch.contains(value), ch.exists(_ == value)))
+  test("has") {
+    forallChVal((ch, value) => (ch.has(value), ch.exists(_ == value)))
   }
 
   test("equal") {
