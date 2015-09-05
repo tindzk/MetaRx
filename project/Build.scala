@@ -15,7 +15,6 @@ object Build extends sbt.Build {
     .settings(sonatypeSettings: _*)
     .settings(
       name := "MetaRx",
-      version := "0.1.2-SNAPSHOT",
 
       pomExtra :=
         <url>https://github.com/MetaStack-pl/MetaRx</url>
