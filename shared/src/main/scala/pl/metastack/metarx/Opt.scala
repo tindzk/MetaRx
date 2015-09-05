@@ -17,6 +17,18 @@ trait ReadPartialChannel[T]
       case None        => Result.Next(default)
       case Some(value) => Result.Next(f(value))
     }
+
+  def size: ReadChannel[Int] =
+    foldLeft(0) {
+      case (acc, Some(_)) => acc + 1
+      case (acc, None)    => 0
+    }
+
+  def orElse(default: => ReadChannel[T]): ReadChannel[T] =
+    flatMap {
+      case None        => default
+      case Some(value) => Var(value)
+    }
 }
 
 trait PartialChannel[T]
@@ -47,12 +59,6 @@ sealed class Opt[T](private var v: Option[T] = None)
 
   def flush(f: Option[T] => Unit) { f(v) }
 
-  def size: ReadChannel[Int] =
-    foldLeft(0) {
-      case (acc, Some(_)) => acc + 1
-      case (acc, None)    => 0
-    }
-
   def clear() { produce(None) }
 
   def partialUpdate(f: PartialFunction[T, T]) {
@@ -60,12 +66,6 @@ sealed class Opt[T](private var v: Option[T] = None)
   }
 
   def get: Option[T] = v
-
-  def orElse(default: => ReadChannel[T]): ReadChannel[T] =
-    flatMap {
-      case None        => default
-      case Some(value) => Var(value)
-    }
 
   private def str = get.map(_.toString).getOrElse("<undefined>")
   override def toString = s"Opt($str)"
