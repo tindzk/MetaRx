@@ -95,6 +95,24 @@ object OptTest extends SimpleTestSuite {
     assertEquals(elements, mutable.ArrayBuffer(42, 24, 42))
   }
 
+  test("mapOrElse(): lazy evaluation") {
+    val elements = mutable.ArrayBuffer.empty[Int]
+
+    var i = 41
+    def f: Int = { i += 1; i }
+
+    val x = Opt[Int]()
+    val map = x.mapOrElse(_ + 1, f)
+    assertEquals(i, 41)
+    map.attach(elements += _)
+    assertEquals(i, 42)
+
+    x := Some(23)
+    x := None
+
+    assertEquals(elements, mutable.ArrayBuffer(42, 24, 42))
+  }
+
   test("contains()") {
     val elements = mutable.ArrayBuffer.empty[Boolean]
 

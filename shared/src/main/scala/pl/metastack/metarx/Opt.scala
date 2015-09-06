@@ -12,11 +12,13 @@ trait ReadPartialChannel[T]
       case Some(value) => Result.Next(value)
     }
 
-  def mapOrElse[U](f: T => U, default: U): ReadChannel[U] =
+  def mapOrElse[U](f: T => U, default: => U): ReadChannel[U] = {
+    lazy val d = default
     forkUni {
-      case None        => Result.Next(default)
+      case None        => Result.Next(d)
       case Some(value) => Result.Next(f(value))
     }
+  }
 
   def size: ReadChannel[Int] =
     foldLeft(0) {
