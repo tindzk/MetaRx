@@ -627,4 +627,34 @@ object ChannelTest extends SimpleTestSuite {
     var2 := 4
     assertEquals(values, Seq((1, 2), (3, 2), (3, 4)))
   }
+
+  test("state()") {
+    val chStr = Channel[String]()
+
+    val strValues = mutable.ArrayBuffer.empty[String]
+    chStr.attach(strValues += _)
+
+    val varInt = chStr.biMap[Int](_.toInt, _.toString).state
+    assertEquals(strValues, Seq())
+
+    assertEquals(varInt.get, None)
+
+    varInt := 1
+    assertEquals(strValues, Seq("1"))
+  }
+
+  test("state(value)") {
+    val chStr = Channel[String]()
+
+    val strValues = mutable.ArrayBuffer.empty[String]
+    chStr.attach(strValues += _)
+
+    val varInt = chStr.biMap[Int](_.toInt, _.toString).state(1)
+    assertEquals(strValues, Seq("1"))
+
+    assertEquals(varInt.get, 1)
+
+    varInt := 2
+    assertEquals(strValues, Seq("1", "2"))
+  }
 }

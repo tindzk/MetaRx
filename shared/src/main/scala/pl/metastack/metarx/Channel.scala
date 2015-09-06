@@ -362,6 +362,18 @@ trait Channel[T]
     res
   }
 
+  def state: Opt[T] = {
+    val res = Opt[T]()
+    res <<>> partialBiMap[Option[T]](x => Some(Some(x)), identity[Option[T]])
+    res
+  }
+
+  def state(default: T): Var[T] = {
+    val res = Var[T](default)
+    res <<>> this
+    res
+  }
+
   def biMap[U](f: T => U, g: U => T): Channel[U] =
     forkBi(
       fwdValue => Result.Next(f(fwdValue)),
