@@ -47,6 +47,7 @@ object Buffer {
     buf
   }
 
+  implicit def SeqToBuffer[T](elements: Seq[T]): Buffer[T] = from(elements)
   implicit def ReadBufferToSeq[T](buf: ReadBuffer[T]): Seq[T] = buf.elements
 
   implicit def flatten[T](buf: ReadBuffer[ReadBuffer[T]]): ReadBuffer[T] = {
