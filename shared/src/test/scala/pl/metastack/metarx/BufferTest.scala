@@ -4,6 +4,9 @@ import minitest._
 
 import scala.collection.mutable
 
+import scala.concurrent.Promise
+import scala.concurrent.ExecutionContext.Implicits.global
+
 object BufferTest extends SimpleTestSuite {
   import Buffer._
 
@@ -180,5 +183,16 @@ object BufferTest extends SimpleTestSuite {
 
     buffer -= 0
     assertEquals(elems, Seq(false, true, false))
+  }
+
+  test("Conversion from Future[_]") {
+    val p = Promise[Seq[Int]]()
+    val f = p.future
+    val buf = Buffer.from(f)
+    assertEquals(buf.get.isEmpty, true)
+    p.success(Seq(1, 2, 3))
+    f.onComplete { v =>
+      assertEquals(buf.get, Seq(1, 2, 3))
+    }
   }
 }

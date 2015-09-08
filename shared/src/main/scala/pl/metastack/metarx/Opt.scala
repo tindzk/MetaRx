@@ -1,5 +1,7 @@
 package pl.metastack.metarx
 
+import scala.concurrent.{ExecutionContext, Future}
+
 trait ReadPartialChannel[T]
   extends ReadStateChannel[Option[T]]
   with reactive.poll.Empty
@@ -80,6 +82,12 @@ sealed class Opt[T](private var v: Option[T] = None)
 }
 
 object Opt {
-  def apply[T](): Opt[T] = new Opt()
+  def apply[T](): Opt[T] = new Opt[T]()
   def apply[T](value: T): Opt[T] = new Opt(Some(value))
+
+  def from[T](future: Future[T])(implicit exec: ExecutionContext): Opt[T] = {
+    val opt = new Opt[T]()
+    future.foreach(v => opt.produce(Some(v)))
+    opt
+  }
 }

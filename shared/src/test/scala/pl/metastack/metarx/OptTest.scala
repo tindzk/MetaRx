@@ -4,6 +4,9 @@ import minitest._
 
 import scala.collection.mutable
 
+import scala.concurrent.Promise
+import scala.concurrent.ExecutionContext.Implicits.global
+
 object OptTest extends SimpleTestSuite {
   test("foldLeft()") {
     val elems = mutable.ArrayBuffer.empty[Int]
@@ -123,5 +126,16 @@ object OptTest extends SimpleTestSuite {
     x := None
 
     assertEquals(elements, mutable.ArrayBuffer(false, false, true, false))
+  }
+
+  test("Conversion from Future[_]") {
+    val p = Promise[Int]()
+    val f = p.future
+    val opt = Opt.from(f)
+    assertEquals(opt.get, None)
+    p.success(42)
+    f.onComplete { v =>
+      assertEquals(opt.get, Some(42))
+    }
   }
 }
