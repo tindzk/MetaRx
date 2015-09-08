@@ -4,6 +4,9 @@ import minitest._
 
 import scala.collection.mutable
 
+import scala.concurrent.Promise
+import scala.concurrent.ExecutionContext.Implicits.global
+
 case class Test(a: Int, b: Boolean)
 
 object ChannelTest extends SimpleTestSuite {
@@ -667,5 +670,20 @@ object ChannelTest extends SimpleTestSuite {
 
     ch := Some(42)
     assertEquals(intValues, Seq(42))
+  }
+
+  test("Conversion from Future[_]") {
+    val intValues = mutable.ArrayBuffer.empty[Int]
+
+    val p = Promise[Int]()
+    val f = p.future
+
+    val ch = Channel.from(f)
+    ch.attach(intValues += _)
+
+    p.success(42)
+    f.onComplete { v =>
+      assertEquals(intValues, Seq(42))
+    }
   }
 }

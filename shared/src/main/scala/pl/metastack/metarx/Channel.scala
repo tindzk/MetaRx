@@ -1,5 +1,7 @@
 package pl.metastack.metarx
 
+import scala.concurrent.{ExecutionContext, Future}
+
 object Channel {
   type Observer[T, U] = T => Result[U]
 
@@ -7,6 +9,13 @@ object Channel {
     new RootChannel[T] {
       def flush(f: T => Unit) { }
     }
+
+  def from[T](future: Future[T])
+             (implicit exec: ExecutionContext): ReadChannel[T] = {
+    val ch = Channel[T]()
+    future.foreach(ch.produce)
+    ch
+  }
 
   /** Combine a read with a write channel. */
   def apply[T](read: ReadChannel[T], write: WriteChannel[T]): Channel[T] = {
