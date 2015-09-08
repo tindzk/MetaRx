@@ -138,4 +138,15 @@ object OptTest extends SimpleTestSuite {
       assertEquals(opt.get, Some(42))
     }
   }
+
+  test("Conversion from Future[Option[_]]") {
+    val p = Promise[Option[Int]]()
+    val f = p.future
+    val opt = Opt.fromOption(f)
+    assertEquals(opt.get, None)
+    p.success(Some(42))
+    f.onComplete { v =>
+      assertEquals(opt.get, Some(42))
+    }
+  }
 }
