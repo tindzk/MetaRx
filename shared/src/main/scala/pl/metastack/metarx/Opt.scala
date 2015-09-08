@@ -106,6 +106,12 @@ object Opt {
   def apply[T](): Opt[T] = new Opt[T]()
   def apply[T](value: T): Opt[T] = new Opt(Some(value))
 
+  def fromOption[T](future: Future[Option[T]])(implicit exec: ExecutionContext): Opt[T] = {
+    val opt = new Opt[T]()
+    future.foreach(v => opt.produce(v))
+    opt
+  }
+
   def from[T](future: Future[T])(implicit exec: ExecutionContext): Opt[T] = {
     val opt = new Opt[T]()
     future.foreach(v => opt.produce(Some(v)))
