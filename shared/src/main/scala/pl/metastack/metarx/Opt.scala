@@ -2,43 +2,64 @@ package pl.metastack.metarx
 
 import scala.concurrent.{ExecutionContext, Future}
 
+trait OptImplicits {
+  implicit class PartialChannelExtensions[T](ch: ReadChannel[Option[T]]) {
+    def values: ReadChannel[T] =
+      ch.forkUni {
+        case None        => Result.Next()
+        case Some(value) => Result.Next(value)
+      }
+
+    def mapOrElse[U](f: T => U, default: => U): ReadChannel[U] = {
+      lazy val d = default
+      ch.forkUni {
+        case None        => Result.Next(d)
+        case Some(value) => Result.Next(f(value))
+      }
+    }
+
+    def size: ReadChannel[Int] =
+      ch.foldLeft(0) {
+        case (acc, Some(_)) => acc + 1
+        case (acc, None)    => 0
+      }
+
+    def orElse(default: => ReadChannel[T]): ReadChannel[T] =
+      ch.flatMap {
+        case None        => default
+        case Some(value) => Var(value)
+      }
+
+    def contains(value: T): ReadChannel[Boolean] =
+      ch.map {
+        case Some(`value`) => true
+        case _             => false
+      }
+  }
+}
+
+object OptImplicits extends OptImplicits
+
 trait ReadPartialChannel[T]
   extends ReadStateChannel[Option[T]]
   with reactive.poll.Empty
   with reactive.poll.Count[T]
   with reactive.stream.PartialChannel[T]
 {
-  def values: ReadChannel[T] =
-    forkUni {
-      case None        => Result.Next()
-      case Some(value) => Result.Next(value)
-    }
+  @inline def values: ReadChannel[T] =
+    OptImplicits.PartialChannelExtensions(this).values
 
-  def mapOrElse[U](f: T => U, default: => U): ReadChannel[U] = {
-    lazy val d = default
-    forkUni {
-      case None        => Result.Next(d)
-      case Some(value) => Result.Next(f(value))
-    }
-  }
+  @inline def mapOrElse[U](f: T => U, default: => U): ReadChannel[U] =
+    OptImplicits.PartialChannelExtensions(this).mapOrElse(f, default)
 
-  def size: ReadChannel[Int] =
-    foldLeft(0) {
-      case (acc, Some(_)) => acc + 1
-      case (acc, None)    => 0
-    }
+  @inline def size: ReadChannel[Int] =
+    OptImplicits.PartialChannelExtensions(this).size
 
-  def orElse(default: => ReadChannel[T]): ReadChannel[T] =
-    flatMap {
-      case None        => default
-      case Some(value) => Var(value)
-    }
+  @inline def orElse(default: => ReadChannel[T]): ReadChannel[T] =
+    OptImplicits.PartialChannelExtensions(this).orElse(default)
 
-  def contains(value: T): ReadChannel[Boolean] =
-    map {
-      case Some(`value`) => true
-      case _             => false
-    }
+  @inline def contains(value: T): ReadChannel[Boolean] =
+    OptImplicits.PartialChannelExtensions(this).contains(value)
 }
 
 trait PartialChannel[T]

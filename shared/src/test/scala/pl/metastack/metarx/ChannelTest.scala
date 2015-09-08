@@ -657,4 +657,15 @@ object ChannelTest extends SimpleTestSuite {
     varInt := 2
     assertEquals(strValues, Seq("1", "2"))
   }
+
+  test("values()") {
+    val intValues = mutable.ArrayBuffer.empty[Int]
+
+    val ch = Var[Option[Int]](None)
+    ch.values.attach(intValues += _)
+    assertEquals(intValues, Seq.empty)
+
+    ch := Some(42)
+    assertEquals(intValues, Seq(42))
+  }
 }
