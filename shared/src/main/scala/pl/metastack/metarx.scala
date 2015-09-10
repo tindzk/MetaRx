@@ -14,18 +14,25 @@ package object metarx extends OptImplicits {
   }
 
   implicit class ReadChannelBooleanExtensions(rch: ReadChannel[Boolean]) {
+    def otherWithOperation(other: ReadChannel[Boolean], operator: (Boolean, Boolean) => Boolean) = {
+      rch.flatMap(thisVal => other.map(otherVal => operator(thisVal, otherVal)))
+    }
+    def booleanWithOperation(argument: Boolean, operator: (Boolean, Boolean) => Boolean): ReadChannel[Boolean] = {
+      rch.map(value => operator(value, argument))
+    }
+
     def &&(other: ReadChannel[Boolean]): ReadChannel[Boolean] =  {
-      rch.flatMap (thisVal => other.map(otherVal => thisVal && otherVal) )
+      otherWithOperation(other, _ && _)
     }
     def &&(argument: Boolean): ReadChannel[Boolean] = {
-      rch.map(value => value && argument)
+      booleanWithOperation(argument, _ && _)
     }
 
     def ||(other: ReadChannel[Boolean]): ReadChannel[Boolean] =  {
-      rch.flatMap (thisVal => other.map(otherVal => thisVal || otherVal) )
+      otherWithOperation(other, _ || _)
     }
     def ||(argument: Boolean): ReadChannel[Boolean] = {
-      rch.map(value => value || argument)
+      booleanWithOperation(argument, _ || _)
     }
 
     def isFalse: ReadChannel[Boolean] = rch.map(!_)
