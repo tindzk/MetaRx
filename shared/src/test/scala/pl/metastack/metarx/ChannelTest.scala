@@ -686,4 +686,158 @@ object ChannelTest extends SimpleTestSuite {
       assertEquals(intValues, Seq(42))
     }
   }
+
+  test("Logical tests for ReadChannel[Boolean]") {
+    import pl.metastack.metarx._
+
+    val ch1 = Channel[Boolean]()
+
+    val chRes = Channel[Boolean]()
+    var states = mutable.ArrayBuffer.empty[Boolean]
+    chRes.attach(states += _)
+
+    chRes << !ch1
+
+    ch1 := true
+    ch1 := false
+
+    assertEquals(states, mutable.ArrayBuffer(false, true))
+
+    val trueRes = ch1.onTrue
+    val falseRes = ch1.onFalse
+
+    var numTrues = 0
+    trueRes.attach(_ => numTrues += 1)
+    var numFalses = 0
+    falseRes.attach(_ => numFalses += 1)
+    assertEquals(numTrues, 0)
+    assertEquals(numFalses, 0)
+
+    ch1 := true
+    assertEquals(numTrues, 1)
+    assertEquals(numFalses, 0)
+
+    ch1 := false
+    assertEquals(numTrues, 1)
+    assertEquals(numFalses, 1)
+  }
+
+  test("Logical operators for ReadChannel[Boolean]") {
+    import pl.metastack.metarx._
+
+    val ch1 = Channel[Boolean]()
+    val ch2 = Channel[Boolean]()
+
+    val andRes = Channel[Boolean]()
+    var andStates = mutable.ArrayBuffer.empty[Boolean]
+    andRes.attach(andStates += _)
+
+    val orRes = Channel[Boolean]()
+    var orStates = mutable.ArrayBuffer.empty[Boolean]
+    orRes.attach(orStates += _)
+
+    andRes << (ch1 && ch2)
+    orRes << (ch1 || ch2)
+
+    ch1 := false
+    ch2 := false
+
+    ch1 := true
+    ch2 := false
+
+    ch1 := false
+    ch2 := true
+
+    ch1 := true
+    ch2 := true
+
+    assertEquals(andStates, mutable.ArrayBuffer(false, false, false, true))
+    assertEquals(orStates, mutable.ArrayBuffer(false, true, true, true))
+  }
+
+  test("Logical operators for Var[Boolean]") {
+    import pl.metastack.metarx._
+
+    val ch1 = Var[Boolean](false)
+    val ch2 = Var[Boolean](false)
+
+    val andRes = Channel[Boolean]()
+    var andStates = mutable.ArrayBuffer.empty[Boolean]
+    andRes.attach(andStates += _)
+
+    val orRes = Channel[Boolean]()
+    var orStates = mutable.ArrayBuffer.empty[Boolean]
+    orRes.attach(orStates += _)
+
+    andRes << (ch1 && ch2)
+    orRes << (ch1 || ch2)
+
+    ch1 := true
+    ch2 := true
+
+    ch2 := false
+
+    assertEquals(andStates, mutable.ArrayBuffer(false, false, true, false))
+    assertEquals(orStates, mutable.ArrayBuffer(false, true, true, true))
+  }
+
+  test("Logical operators between Channel[Boolean] and Boolean") {
+    import pl.metastack.metarx._
+
+    val ch = Channel[Boolean]()
+    var inputBoolean = false
+
+    val andRes = Channel[Boolean]()
+    var andStates = mutable.ArrayBuffer.empty[Boolean]
+    andRes.attach(andStates += _)
+
+    val orRes = Channel[Boolean]()
+    var orStates = mutable.ArrayBuffer.empty[Boolean]
+    orRes.attach(orStates += _)
+
+    andRes << (ch && inputBoolean)
+    orRes << (ch || inputBoolean)
+
+    ch := false
+    ch := true
+
+    inputBoolean = true
+    andRes << (ch && inputBoolean)
+    orRes << (ch || inputBoolean)
+    ch := false
+    ch := true
+
+    assertEquals(andStates, mutable.ArrayBuffer(false, false, false, false, false, true))
+    assertEquals(orStates, mutable.ArrayBuffer(false, true, false, true, true, true))
+  }
+
+  test("Logical operators between Boolean and Channel[Boolean]") {
+    import pl.metastack.metarx._
+
+    val ch = Channel[Boolean]()
+    var inputBoolean = false
+
+    val andRes = Channel[Boolean]()
+    var andStates = mutable.ArrayBuffer.empty[Boolean]
+    andRes.attach(andStates += _)
+
+    val orRes = Channel[Boolean]()
+    var orStates = mutable.ArrayBuffer.empty[Boolean]
+    orRes.attach(orStates += _)
+
+    andRes << (inputBoolean && ch)
+    orRes << (inputBoolean || ch)
+
+    ch := false
+    ch := true
+
+    inputBoolean = true
+    andRes << (ch && inputBoolean)
+    orRes << (ch || inputBoolean)
+    ch := false
+    ch := true
+
+    assertEquals(andStates, mutable.ArrayBuffer(false, false, false, false, false, true))
+    assertEquals(orStates, mutable.ArrayBuffer(false, true, false, true, true, true))
+  }
 }
