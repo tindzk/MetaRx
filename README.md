@@ -42,7 +42,7 @@ val m = Opt[Int]()
 val b = Opt[Int]()
 
 // Produces when user provided `m` and `b`
-val mAndB: ReadChannel[(Int, Int)] = m.combine(b)
+val mAndB: ReadChannel[(Int, Int)] = m.zip(b)
 
 // Function channel to calculate `y` for current input
 val y: ReadChannel[Int => Int] =
@@ -240,6 +240,19 @@ val merged: ReadChannel[String] = a | b | c
 ```
 
 It must be noted that streaming operations have different semantics than their non-reactive counterparts. For brevity, only certain combinators are covered by the manual. For the rest, please refer to the ScalaDoc documentation.
+
+For Boolean channels, the logical operators are defined, and give a new channel with the result:
+
+```scala
+val a = Channel[Boolean]()
+val b = Channel[Boolean]()
+
+val aAndB: ReadChannel[Boolean] = a && b // same as a.zip(b).map { case (aVal, bVal) => aVal && bVal }
+val aOrB: ReadChannel[Boolean] = a || b
+val notA = !a // or a.isFalse()
+```
+
+Furthermore onTrue() and onFalse() are defined and will give a ReadChannel[Unit] that trigger when either true or false value is received.
 
 ### State channels
 For better performance, ``Channel`` does not cache the produced values. Some operations cannot be implemented without access to the current value, though. And often it is necessary to poll the current value. For these reasons *state channels* such as ``Var`` or ``Opt`` were introduced. The following example visualises the different behaviours:
