@@ -840,4 +840,72 @@ object ChannelTest extends SimpleTestSuite {
     assertEquals(andStates, mutable.ArrayBuffer(false, false, false, false, false, true))
     assertEquals(orStates, mutable.ArrayBuffer(false, true, false, true, true, true))
   }
+
+  test("Logical operators between Channel[Numeric]") {
+    val ch1 = Channel[Int]()
+    val ch2 = Channel[Int]()
+
+    val plusRes = ch1 + ch2
+    var plusStates = mutable.ArrayBuffer.empty[Int]
+    plusRes.attach(plusStates += _)
+
+    val negRes = ch1 - ch2
+    var negStates = mutable.ArrayBuffer.empty[Int]
+    negRes.attach(negStates += _)
+
+    ch1 := 5
+    ch2 := 4
+
+    assertEquals(plusStates, mutable.ArrayBuffer(9))
+    assertEquals(negStates, mutable.ArrayBuffer(1))
+  }
+
+  test("Logical division between Channel[Integral]") {
+    val ch1 = Channel[Int]()
+    val ch2 = Channel[Int]()
+
+    val divRes = ch1 / ch2
+    var divStates = mutable.ArrayBuffer.empty[Int]
+    divRes.attach(divStates += _)
+
+    val remRes = ch1 % ch2
+    var remStates = mutable.ArrayBuffer.empty[Double]
+    remRes.attach(remStates += _)
+
+    ch1 := 5
+    ch2 := 4
+
+    assertEquals(divStates, mutable.ArrayBuffer(1))
+    assertEquals(remStates, mutable.ArrayBuffer(1))
+  }
+
+  test("Logical division between Integral and Channel[Integral]") {
+    val var1 = Var[Int](5)
+    val res = 10 / var1
+
+    assertEquals(res.cache.get, Some(2))
+  }
+
+
+  test("Logical division between Channel[Fractional]") {
+    val ch1 = Channel[Double]()
+    val ch2 = Channel[Double]()
+
+    val divRes = ch1 / ch2
+    var divStates = mutable.ArrayBuffer.empty[Double]
+    divRes.attach(divStates += _)
+
+    ch1 := 5
+    ch2 := 4
+
+    assertEquals(divStates, mutable.ArrayBuffer(1.25))
+  }
+
+  test("Logical division between Fractional and Channel[Fractional]") {
+    val var1 = Var(5.0)
+    val res = 10.0 / var1
+
+    assertEquals(res.cache.get, Some(2.0))
+  }
+
 }
