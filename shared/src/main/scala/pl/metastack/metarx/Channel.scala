@@ -237,10 +237,16 @@ trait ReadChannel[T]
       Result.Next(t == value)
     }.distinct
 
+  def is(other: ReadChannel[T]): ReadChannel[Boolean] = {
+    zip(other).map { case (a, b) => a == b }
+  }
+
   def isNot(value: T): ReadChannel[Boolean] =
     forkUni { t =>
       Result.Next(t != value)
     }.distinct
+
+  def isNot(other: ReadChannel[T]): ReadChannel[Boolean] = !is(other)
 
   def flatMap[U](f: T => ReadChannel[U]): ReadChannel[U] =
     forkUniFlat(value => Result.Next(f(value)))
