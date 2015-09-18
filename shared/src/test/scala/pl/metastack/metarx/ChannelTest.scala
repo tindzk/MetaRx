@@ -705,17 +705,13 @@ object ChannelTest extends SimpleTestSuite {
   test("Logical tests for ReadChannel[Boolean]") {
     import pl.metastack.metarx._
 
-    val ch1 = Channel[Boolean]()
+    val ch1 = Var[Boolean](true)
+    val chRes = !ch1
 
-    val chRes = Channel[Boolean]()
     var states = mutable.ArrayBuffer.empty[Boolean]
     chRes.attach(states += _)
 
-    chRes << !ch1
-
-    ch1 := true
     ch1 := false
-
     assertEquals(states, mutable.ArrayBuffer(false, true))
 
     val trueRes = ch1.onTrue
@@ -726,22 +722,22 @@ object ChannelTest extends SimpleTestSuite {
     var numFalses = 0
     falseRes.attach(_ => numFalses += 1)
     assertEquals(numTrues, 0)
-    assertEquals(numFalses, 0)
+    assertEquals(numFalses, 1)
 
     ch1 := true
     assertEquals(numTrues, 1)
-    assertEquals(numFalses, 0)
+    assertEquals(numFalses, 1)
 
     ch1 := false
     assertEquals(numTrues, 1)
-    assertEquals(numFalses, 1)
+    assertEquals(numFalses, 2)
   }
 
   test("Logical operators for ReadChannel[Boolean]") {
     import pl.metastack.metarx._
 
-    val ch1 = Channel[Boolean]()
-    val ch2 = Channel[Boolean]()
+    val ch1 = Var(false)
+    val ch2 = Var(false)
 
     val andRes = Channel[Boolean]()
     var andStates = mutable.ArrayBuffer.empty[Boolean]
@@ -754,20 +750,15 @@ object ChannelTest extends SimpleTestSuite {
     andRes << (ch1 && ch2)
     orRes << (ch1 || ch2)
 
-    ch1 := false
-    ch2 := false
-
     ch1 := true
-    ch2 := false
 
     ch1 := false
     ch2 := true
 
     ch1 := true
-    ch2 := true
 
-    assertEquals(andStates, mutable.ArrayBuffer(false, false, false, true))
-    assertEquals(orStates, mutable.ArrayBuffer(false, true, true, true))
+    assertEquals(andStates, mutable.ArrayBuffer(false, false, false, false, true))
+    assertEquals(orStates, mutable.ArrayBuffer(false, true, false, true, true))
   }
 
   test("Logical operators for Var[Boolean]") {
@@ -796,34 +787,52 @@ object ChannelTest extends SimpleTestSuite {
     assertEquals(orStates, mutable.ArrayBuffer(false, true, true, true))
   }
 
-  test("Logical operators between Channel[Boolean] and Boolean") {
+  test("Logical && operator between Channel[Boolean] and Boolean") {
     import pl.metastack.metarx._
 
-    val ch = Channel[Boolean]()
+    val ch = Var(false)
     var inputBoolean = false
 
-    val andRes = Channel[Boolean]()
+    val andRes = ch && inputBoolean
     var andStates = mutable.ArrayBuffer.empty[Boolean]
     andRes.attach(andStates += _)
 
-    val orRes = Channel[Boolean]()
-    var orStates = mutable.ArrayBuffer.empty[Boolean]
-    orRes.attach(orStates += _)
-
-    andRes << (ch && inputBoolean)
-    orRes << (ch || inputBoolean)
-
-    ch := false
     ch := true
 
     inputBoolean = true
-    andRes << (ch && inputBoolean)
-    orRes << (ch || inputBoolean)
+
+    andRes.dispose()
+    val andRes2 = ch && inputBoolean
+    var andStates2 = mutable.ArrayBuffer.empty[Boolean]
+    andRes2.attach(andStates2 += _)
     ch := false
+
+    assertEquals(andStates, mutable.ArrayBuffer(false, false))
+    assertEquals(andStates2, mutable.ArrayBuffer(true, false))
+  }
+
+  test("Logical || operator between Channel[Boolean] and Boolean") {
+    import pl.metastack.metarx._
+
+    val ch = Var(false)
+    var inputBoolean = false
+
+    val orRes = ch || inputBoolean
+    var orStates = mutable.ArrayBuffer.empty[Boolean]
+    orRes.attach(orStates += _)
+
     ch := true
 
-    assertEquals(andStates, mutable.ArrayBuffer(false, false, false, false, false, true))
-    assertEquals(orStates, mutable.ArrayBuffer(false, true, false, true, true, true))
+    orRes.dispose()
+    inputBoolean = true
+    val orRes2 = ch || inputBoolean
+    var orStates2 = mutable.ArrayBuffer.empty[Boolean]
+    orRes2.attach(orStates2 += _)
+
+    ch := false
+
+    assertEquals(orStates, mutable.ArrayBuffer(false, true))
+    assertEquals(orStates2, mutable.ArrayBuffer(true, true))
   }
 
   test("Logical operators between Boolean and Channel[Boolean]") {
@@ -856,9 +865,9 @@ object ChannelTest extends SimpleTestSuite {
     assertEquals(orStates, mutable.ArrayBuffer(false, true, false, true, true, true))
   }
 
-  test("Logical operators between Channel[Numeric]") {
-    val ch1 = Channel[Int]()
-    val ch2 = Channel[Int]()
+  test("Logical operators between Var[Numeric]") {
+    val ch1 = Var[Int](5)
+    val ch2 = Var[Int](4)
 
     val plusRes = ch1 + ch2
     var plusStates = mutable.ArrayBuffer.empty[Int]
@@ -868,16 +877,13 @@ object ChannelTest extends SimpleTestSuite {
     var negStates = mutable.ArrayBuffer.empty[Int]
     negRes.attach(negStates += _)
 
-    ch1 := 5
-    ch2 := 4
-
     assertEquals(plusStates, mutable.ArrayBuffer(9))
     assertEquals(negStates, mutable.ArrayBuffer(1))
   }
 
-  test("Logical division between Channel[Integral]") {
-    val ch1 = Channel[Int]()
-    val ch2 = Channel[Int]()
+  test("Logical division between Var[Integral]") {
+    val ch1 = Var(5)
+    val ch2 = Var(4)
 
     val divRes = ch1 / ch2
     var divStates = mutable.ArrayBuffer.empty[Int]
@@ -887,11 +893,11 @@ object ChannelTest extends SimpleTestSuite {
     var remStates = mutable.ArrayBuffer.empty[Double]
     remRes.attach(remStates += _)
 
-    ch1 := 5
-    ch2 := 4
+    ch1 := 12
+    ch2 := 5
 
-    assertEquals(divStates, mutable.ArrayBuffer(1))
-    assertEquals(remStates, mutable.ArrayBuffer(1))
+    assertEquals(divStates, mutable.ArrayBuffer(1, 3, 2))
+    assertEquals(remStates, mutable.ArrayBuffer(1, 0, 2))
   }
 
   test("Logical division between Integral and Channel[Integral]") {
@@ -903,8 +909,8 @@ object ChannelTest extends SimpleTestSuite {
 
 
   test("Logical division between Channel[Fractional]") {
-    val ch1 = Channel[Double]()
-    val ch2 = Channel[Double]()
+    val ch1 = Var[Double](9)
+    val ch2 = Var[Double](2)
 
     val divRes = ch1 / ch2
     var divStates = mutable.ArrayBuffer.empty[Double]
@@ -913,7 +919,7 @@ object ChannelTest extends SimpleTestSuite {
     ch1 := 5
     ch2 := 4
 
-    assertEquals(divStates, mutable.ArrayBuffer(1.25))
+    assertEquals(divStates, mutable.ArrayBuffer(4.5, 2.5, 1.25))
   }
 
   test("Logical division between Fractional and Channel[Fractional]") {
