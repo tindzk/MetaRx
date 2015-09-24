@@ -70,6 +70,14 @@ object ChannelSpec extends SimpleTestSuite {
     forallChVal((ch, value) => (ch.is(value), ch.isNot(value).map(!_)))
   }
 
+  test("equal operators") {
+    forallChVal((ch, value) => (ch === value, (ch !=== value) map(!_) ))
+  }
+
+  test("equal operators") {
+    forallCh((ch) => (ch === ch, (ch !=== ch) map(!_) ))
+  }
+
   /* TODO Generalise values */
   test("head") {
     // TODO Use Channel.fromSeq()
