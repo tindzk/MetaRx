@@ -366,6 +366,21 @@ object ChannelTest extends SimpleTestSuite {
     assertEquals(value, (24, 43))
   }
 
+  test("zipWith()") {
+    val ch = Var(0)
+    val ch2 = Var(1)
+
+    val zip = ch.zipWith(ch2)(_ + _)
+
+    var values = mutable.ArrayBuffer.empty[Int]
+    zip.attach(values += _)
+
+    assertEquals(values, Seq(1))
+
+    ch := 2
+    assertEquals(values, Seq(1, 3))
+  }
+
   test("flatMap()") {
     val ch = Channel[Int]()
 

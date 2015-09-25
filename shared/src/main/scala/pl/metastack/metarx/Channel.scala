@@ -123,6 +123,9 @@ trait ReadChannel[T]
     res
   }
 
+  def zipWith[U, V](other: ReadChannel[U])(f: (T, U) => V): ReadChannel[V] =
+    zip(other).map(f.tupled)
+
   def child(): ReadChannel[T] =
     forkUni(t => Result.Next(t))
 
