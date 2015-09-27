@@ -923,4 +923,38 @@ object ChannelTest extends SimpleTestSuite {
     assertEquals(res.cache.get, Some(2.0))
   }
 
+  test("Logical operators for Var[Ordering]") {
+    import pl.metastack.metarx._
+
+    val ch1 = Var[Int](6)
+    val ch2 = Var[Int](5)
+
+    val ch1Bigger = ch1 > ch2
+    var ch1BiggerStates = mutable.ArrayBuffer.empty[Boolean]
+    ch1Bigger.attach(ch1BiggerStates += _)
+
+    val ch1LessOrEq = ch1 <= ch2
+    var ch1LessOrEqStates = mutable.ArrayBuffer.empty[Boolean]
+    ch1LessOrEq.attach(ch1LessOrEqStates += _)
+
+    ch2 := 6
+    ch2 := 5
+
+    assertEquals(ch1BiggerStates, mutable.ArrayBuffer(true, false, true))
+    assertEquals(ch1LessOrEqStates, mutable.ArrayBuffer(false, true, false))
+  }
+
+  test("Logical operators between Ordering and Channel[Ordering]") {
+    val ch1 = Channel[Int]()
+
+    val ch1Bigger = 5 < ch1
+    var ch1BiggerStates = mutable.ArrayBuffer.empty[Boolean]
+    ch1Bigger.attach(ch1BiggerStates += _)
+
+    ch1 := 5
+    ch1 := 4
+    ch1 := 6
+
+    assertEquals(ch1BiggerStates, mutable.Buffer(false, false, true))
+  }
 }

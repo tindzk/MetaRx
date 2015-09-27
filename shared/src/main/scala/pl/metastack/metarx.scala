@@ -106,4 +106,27 @@ package object metarx extends OptImplicits {
 
     def /(other: ReadChannel[T]): ReadChannel[T] = other.map(div(value, _))
   }
+
+  implicit class ReadChannelOrderingExtensions[T: Ordering](rch: ReadChannel[T])(implicit ord: Ordering[T]) extends ReadChannelExtensionBase(rch) {
+    import ord._
+
+    def <(other: ReadChannel[T]): ReadChannel[Boolean] = rch.zipWith(other)(_ < _)
+    def <=(other: ReadChannel[T]): ReadChannel[Boolean] = rch.zipWith(other)(_ <= _)
+    def <(arg: T): ReadChannel[Boolean] = rch.map(_ < arg)
+    def <=(arg: T): ReadChannel[Boolean] = rch.map(_ <= arg)
+
+    def >(other: ReadChannel[T]): ReadChannel[Boolean] = rch.zipWith(other)(_ > _)
+    def >=(other: ReadChannel[T]): ReadChannel[Boolean] = rch.zipWith(other)(_ >= _)
+    def >(arg: T): ReadChannel[Boolean] = rch.map(_ > arg)
+    def >=(arg: T): ReadChannel[Boolean] = rch.map(_ >= arg)
+  }
+
+  implicit class OrderingExtensions[T: Ordering](value: T)(implicit ord: Ordering[T]) {
+    import ord._
+
+    def >(other: ReadChannel[T]): ReadChannel[Boolean] = other.map(value > _)
+    def >=(other: ReadChannel[T]): ReadChannel[Boolean] = other.map(value >= _)
+    def <(other: ReadChannel[T]): ReadChannel[Boolean] = other.map(value < _)
+    def <=(other: ReadChannel[T]): ReadChannel[Boolean] = other.map(value <= _)
+  }
 }
