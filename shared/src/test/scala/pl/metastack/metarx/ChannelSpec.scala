@@ -71,11 +71,11 @@ object ChannelSpec extends SimpleTestSuite {
   }
 
   test("equal operators") {
-    forallChVal((ch, value) => (ch === value, (ch !=== value) map(!_) ))
+    forallChVal((ch, value) => (ch === value, (ch !== value) map(!_) ))
   }
 
   test("equal operators") {
-    forallCh((ch) => (ch === ch, (ch !=== ch) map(!_) ))
+    forallCh((ch) => (ch === ch, (ch !== ch) map(!_) ))
   }
 
   /* TODO Generalise values */

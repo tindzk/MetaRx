@@ -16,6 +16,6 @@ trait Is[T] {
   /** Current value is not equal to `value` */
   def isNot(value: T): ReadChannel[Boolean]
   def isNot(value: ReadChannel[T]): ReadChannel[Boolean]
-  def !===(value: T) = isNot(value)
-  def !===(value: ReadChannel[T]) = isNot(value)
+  def !==(value: T) = isNot(value)
+  def !==(value: ReadChannel[T]) = isNot(value)
 }
