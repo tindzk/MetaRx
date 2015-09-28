@@ -254,6 +254,16 @@ val notA = !a // or a.isFalse()
 
 Furthermore onTrue() and onFalse() are defined and will give a ReadChannel[Unit] that trigger when either true or false value is received.
 
+Aritmetic operators like ``` +, -, *, /, %, <, <=, >, >=, ===, !==``` are also supported for types that define them (supported by Numeric/Ordering traits):
+
+```scala
+val a = Channel[Int]()
+val b = Channel[Int]()
+
+val c: ReadChannel[Int] = 5 - 2 * a + 3 / b
+val d: ReadChannel[Boolean] = c >= 42
+```
+
 ### State channels
 For better performance, ``Channel`` does not cache the produced values. Some operations cannot be implemented without access to the current value, though. And often it is necessary to poll the current value. For these reasons *state channels* such as ``Var`` or ``Opt`` were introduced. The following example visualises the different behaviours:
 
