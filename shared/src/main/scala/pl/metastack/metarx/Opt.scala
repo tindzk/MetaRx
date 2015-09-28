@@ -10,6 +10,12 @@ trait OptImplicits {
         case Some(value) => Result.Next(value)
       }
 
+    def mapValues[U](f: T => U): ReadChannel[Option[U]] =
+      ch.forkUni {
+        case None        => Result.Next(None)
+        case Some(value) => Result.Next(Some(f(value)))
+      }
+
     def mapOrElse[U](f: T => U, default: => U): ReadChannel[U] = {
       lazy val d = default
       ch.forkUni {
@@ -48,6 +54,9 @@ trait ReadPartialChannel[T]
 {
   @inline def values: ReadChannel[T] =
     OptImplicits.PartialChannelExtensions(this).values
+
+  @inline def mapValues[U](f: T => U): ReadChannel[Option[U]] =
+    OptImplicits.PartialChannelExtensions(this).mapValues(f)
 
   @inline def mapOrElse[U](f: T => U, default: => U): ReadChannel[U] =
     OptImplicits.PartialChannelExtensions(this).mapOrElse(f, default)

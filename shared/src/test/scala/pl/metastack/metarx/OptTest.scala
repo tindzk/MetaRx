@@ -87,6 +87,20 @@ object OptTest extends SimpleTestSuite {
     assertEquals(elements, mutable.ArrayBuffer(false, true, false))
   }
 
+  test("mapValues() ... orElse()") {
+    val elements = mutable.ArrayBuffer.empty[Int]
+
+    val x = Opt[String]()
+    x.mapValues(_.toInt)
+     .mapValues(_ * 2)
+     .orElse(Var(-1))
+     .attach(elements += _)
+    x := Some("42")
+    x := None
+
+    assertEquals(elements, mutable.ArrayBuffer(-1, 84, -1))
+  }
+
   test("mapOrElse()") {
     val elements = mutable.ArrayBuffer.empty[Int]
 
