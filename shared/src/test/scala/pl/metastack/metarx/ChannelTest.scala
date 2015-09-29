@@ -366,6 +366,24 @@ object ChannelTest extends SimpleTestSuite {
     assertEquals(value, (24, 43))
   }
 
+  test("zip() with multiple inputs") {
+    val ch = Var(0)
+    val ch2 = Var(1)
+    val ch3 = Var("abc")
+    val ch4 = Var(3)
+
+    val zip = ch.zip(ch2, ch3, ch4)
+
+    var values = mutable.ArrayBuffer.empty[(Int, Int, String, Int)]
+    zip.attach(values += _)
+
+    assertEquals(values, Seq((0, 1, "abc", 3)))
+
+    ch4 := 10
+    ch3 := "def"
+    assertEquals(values, Seq((0, 1, "abc", 3), (0, 1, "abc", 10), (0, 1, "def", 10)))
+  }
+
   test("zipWith()") {
     val ch = Var(0)
     val ch2 = Var(1)
