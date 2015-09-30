@@ -957,4 +957,19 @@ object ChannelTest extends SimpleTestSuite {
 
     assertEquals(ch1BiggerStates, mutable.Buffer(false, false, true))
   }
+
+  test("Extra operations for Channel[String]") {
+    val test1 = "Test1"
+    val test2 = "Test2"
+    val concated = test1 + test2
+
+    val ch1 = Var(test1)
+    val ch2 = Var(test2)
+    val ch3 = ch1 + ch2
+
+    assertEquals(ch3.cache.get, Some(concated))
+
+    val ch4 = ch1 + test2
+    assertEquals(ch4.cache.get, Some(concated))
+  }
 }
