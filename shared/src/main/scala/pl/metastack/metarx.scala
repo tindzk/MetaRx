@@ -129,4 +129,9 @@ package object metarx extends OptImplicits {
     def <(other: ReadChannel[T]): ReadChannel[Boolean] = other.map(value < _)
     def <=(other: ReadChannel[T]): ReadChannel[Boolean] = other.map(value <= _)
   }
+
+  implicit class ReadChannelStringExtensions(rch: ReadChannel[String]) {
+    def +(other: ReadChannel[String]): ReadChannel[String] = rch.zipWith(other)(_ + _)
+    def +(value: String): ReadChannel[String] = rch.map(_ + value)
+  }
 }
