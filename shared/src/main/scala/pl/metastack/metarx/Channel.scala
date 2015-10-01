@@ -123,6 +123,18 @@ trait ReadChannel[T]
     res
   }
 
+  // Utility methods for zipping more than two channels, to avoid nested tuples
+  def zip[U, V](other1: ReadChannel[U], other2: ReadChannel[V]): ReadChannel[(T, U, V)] = {
+    zip(other1).zip(other2).map { z => (z._1._1, z._1._2, z._2) }
+  }
+  def zip[U, V, W](other1: ReadChannel[U], other2: ReadChannel[V], other3: ReadChannel[W]): ReadChannel[(T, U, V, W)] = {
+    zip(other1, other2).zip(other3).map { z => (z._1._1, z._1._2, z._1._3, z._2) }
+  }
+  def zip[U, V, W, X](other1: ReadChannel[U], other2: ReadChannel[V], other3: ReadChannel[W],
+                      other4: ReadChannel[X]): ReadChannel[(T, U, V, W, X)] = {
+    zip(other1, other2, other3).zip(other4).map { z => (z._1._1, z._1._2, z._1._3, z._1._4, z._2) }
+  }
+
   def zipWith[U, V](other: ReadChannel[U])(f: (T, U) => V): ReadChannel[V] =
     zip(other).map(f.tupled)
 
