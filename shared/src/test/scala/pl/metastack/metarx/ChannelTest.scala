@@ -3,6 +3,7 @@ package pl.metastack.metarx
 import minitest._
 
 import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 
 import scala.concurrent.Promise
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -995,5 +996,28 @@ object ChannelTest extends SimpleTestSuite {
 
     val ch4 = ch1 + test2
     assertEquals(ch4.cache.get, Some(concated))
+  }
+
+  test("throttle()") {
+    import scala.concurrent.duration._
+    import Platform.DefaultScheduler
+    val scheduler = implicitly[Scheduler]
+
+    val ch = Channel[Int]()
+    val throttled = ch.throttle(600.millis)
+
+    var i = 0
+    val task = scheduler.schedule(500.millis) {
+      ch := i
+      i += 1
+    }
+
+    val collected = ArrayBuffer.empty[Int]
+    throttled.attach(collected += _)
+
+    scheduler.scheduleOnce(2000.millis) {
+      assertEquals(collected, Seq(0, 2))
+      task.cancel()
+    }
   }
 }

@@ -1,5 +1,6 @@
 package pl.metastack.metarx
 
+import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ExecutionContext, Future}
 
 object Channel {
@@ -327,6 +328,20 @@ trait ReadChannel[T]
         Result.Next(value)
       }
     }, cur)
+  }
+
+  def throttle(interval: FiniteDuration)
+              (implicit scheduler: Scheduler): ReadChannel[T] = {
+    val intervalMs = interval.toMillis
+    var next = 0L
+    forkUni { t =>
+      val time = scheduler.currentTimeMillis()
+      if (next > time) Result.Next()
+      else {
+        next = time + intervalMs
+        Result.Next(t)
+      }
+    }
   }
 }
 
