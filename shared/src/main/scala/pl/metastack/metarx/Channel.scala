@@ -18,8 +18,6 @@ object Channel {
     ch
   }
 
-  implicit def FutureToReadChannel[T](future: Future[T])(implicit exec: ExecutionContext): ReadChannel[T] = Channel.from(future)
-
   /** Combine a read with a write channel. */
   def apply[T](read: ReadChannel[T], write: WriteChannel[T]): Channel[T] = {
     val res = new RootChannel[T] {
@@ -30,6 +28,12 @@ object Channel {
     res
   }
 }
+
+trait ChannelImplicits {
+  implicit def FutureToReadChannel[T](future: Future[T])(implicit exec: ExecutionContext): ReadChannel[T] = Channel.from(future)
+}
+
+object ChannelImplicits extends ChannelImplicits
 
 trait Result[T] {
   val values: Seq[T]

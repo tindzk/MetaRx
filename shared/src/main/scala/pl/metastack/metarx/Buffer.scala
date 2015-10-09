@@ -1,5 +1,7 @@
 package pl.metastack.metarx
 
+import pl.metastack.metarx.Buffer.Delta
+
 import scala.collection.mutable
 import scala.concurrent.{Future, ExecutionContext}
 
@@ -49,16 +51,19 @@ object Buffer {
     buf
   }
 
-  implicit def FutureToReadBuffer[T, U <: Future[Seq[T]]](future: U) (implicit exec: ExecutionContext): ReadBuffer[T] = from(future)
-
   def from[T](chgs: ReadChannel[Delta[T]]): Buffer[T] = {
     val buf = Buffer[T]()
     buf.changes << chgs
     buf
   }
 
-  implicit def SeqToBuffer[T](elements: Seq[T]): Buffer[T] = from(elements)
+}
+
+trait BufferImplicits {
+  implicit def SeqToBuffer[T](elements: Seq[T]): Buffer[T] = Buffer.from(elements)
   implicit def ReadBufferToSeq[T](buf: ReadBuffer[T]): Seq[T] = buf.elements
+  implicit def FutureToReadBuffer[T, U <: Future[Seq[T]]](future: U) (implicit exec: ExecutionContext): ReadBuffer[T] =
+    Buffer.from(future)
 
   implicit def flatten[T](buf: ReadBuffer[ReadBuffer[T]]): ReadBuffer[T] = {
     /** TODO Find a more efficient implementation */
@@ -91,6 +96,8 @@ object Buffer {
     result
   }
 }
+
+object BufferImplicits extends BufferImplicits
 
 object DeltaBuffer {
   import Buffer.Delta
@@ -491,7 +498,7 @@ trait PollBuffer[T]
   def map[U](f: T => U): DeltaBuffer[U]
 
   def flatMap[U](f: T => ReadBuffer[U]): ReadBuffer[U] =
-    Buffer.flatten(map(f).buffer)
+    BufferImplicits.flatten(map(f).buffer)
 
   def collect[U](f: PartialFunction[T, U]): ReadBuffer[U] =
     flatMap(value => f.lift(value) match {
