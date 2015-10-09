@@ -49,6 +49,8 @@ object Buffer {
     buf
   }
 
+  implicit def FutureToReadBuffer[T, U <: Future[Seq[T]]](future: U) (implicit exec: ExecutionContext): ReadBuffer[T] = from(future)
+
   def from[T](chgs: ReadChannel[Delta[T]]): Buffer[T] = {
     val buf = Buffer[T]()
     buf.changes << chgs
