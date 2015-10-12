@@ -29,6 +29,12 @@ object Channel {
   }
 }
 
+trait ChannelImplicits {
+  implicit def FutureToReadChannel[T](future: Future[T])(implicit exec: ExecutionContext): ReadChannel[T] = Channel.from(future)
+}
+
+object ChannelImplicits extends ChannelImplicits
+
 trait Result[T] {
   val values: Seq[T]
 }
