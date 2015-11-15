@@ -5,8 +5,8 @@
 MetaRx implements reactive data structures for Scala and Scala.js.
 
 ## Links
-* [Single-page manual](http://metastack-pl.github.io/metarx/latest.html)
-* [Multi-page manual](http://metastack-pl.github.io/metarx/latest/index.html)
+* [Single-page manual](http://metastack.pl/metarx/latest.html)
+* [Multi-page manual](http://metastack.pl/metarx/latest/index.html)
 * [Versions](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22pl.metastack%22%20AND%20a%3A%22metarx_2.11%22)
 
 ## License
