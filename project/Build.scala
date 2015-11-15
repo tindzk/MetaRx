@@ -2,20 +2,30 @@ import sbt._
 import sbt.Keys._
 import xerial.sbt.Sonatype.sonatypeSettings
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
+import sbtbuildinfo.BuildInfoPlugin
+import sbtbuildinfo.BuildInfoPlugin.autoImport._
 
 object Build extends sbt.Build {
+  val SharedSettings = Seq(
+    name := "MetaRx",
+    organization := "pl.metastack",
+    scalaVersion := "2.11.7",
+    scalacOptions := Seq(
+      "-unchecked",
+      "-deprecation",
+      "-encoding", "utf8"
+    )
+  )
+
   lazy val root = project.in(file("."))
     .aggregate(js, jvm)
-    .settings(
-      name := "MetaRx",
-      publishArtifact := false
-    )
+    .settings(SharedSettings: _*)
+    .settings(publishArtifact := false)
 
   lazy val metaRx = crossProject.in(file("."))
+    .settings(SharedSettings: _*)
     .settings(sonatypeSettings: _*)
     .settings(
-      name := "MetaRx",
-
       pomExtra :=
         <url>https://github.com/MetaStack-pl/MetaRx</url>
         <licenses>
@@ -36,15 +46,6 @@ object Build extends sbt.Build {
         </developers>,
 
       testFrameworks += new TestFramework("minitest.runner.Framework"),
-
-      organization := "pl.metastack",
-      scalaVersion := "2.11.7",
-      scalacOptions := Seq(
-        "-unchecked",
-        "-deprecation",
-        "-encoding", "utf8"
-      ),
-
       autoAPIMappings := true,
       apiMappings += (scalaInstance.value.libraryJar -> url(s"http://www.scala-lang.org/api/${scalaVersion.value}/"))
     )
@@ -60,4 +61,17 @@ object Build extends sbt.Build {
 
   lazy val js = metaRx.js
   lazy val jvm = metaRx.jvm
+
+  lazy val manual = project.in(file("manual"))
+    .dependsOn(jvm)
+    .enablePlugins(BuildInfoPlugin)
+    .settings(SharedSettings: _*)
+    .settings(
+      publishArtifact := false,
+      libraryDependencies ++= Seq(
+        "pl.metastack" %% "metadocs" % "0.1.1-SNAPSHOT",
+        "org.eclipse.jgit" % "org.eclipse.jgit" % "4.1.1.201511131810-r"),
+      buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
+      buildInfoPackage := "pl.metastack.metarx",
+      name := "MetaRx manual")
 }
