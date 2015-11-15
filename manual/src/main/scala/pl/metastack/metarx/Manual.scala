@@ -56,26 +56,19 @@ object Manual extends App {
       "i" -> Italic,
       "li" -> ListItem)
 
-  val chapters = Seq(
-    "introduction",
-    "implementation",
-    "data-structures",
-    "development",
-    "support")
-
-  val files = chapters.map(chapter =>
-    s"manual/chapters/$chapter.md")
-
-  val rawTrees = files.map(file =>
-    Markdown.loadFileWithExtensions(file,
-      instructionSet,
-      constants = Map("version" -> BuildInfo.version),
-      generateId = caption => Some(caption.collect {
-        case c if c.isLetterOrDigit => c
-        case c if c.isSpaceChar => '-'
-      }.toLowerCase)
-    ).get
-  )
+  val rawTrees = Seq(
+    "introduction", "implementation", "data-structures", "development",
+    "support"
+  ).map(chapter => s"manual/$chapter.md")
+   .map(file =>
+      Markdown.loadFileWithExtensions(file,
+        instructionSet,
+        constants = Map("version" -> BuildInfo.version),
+        generateId = caption => Some(caption.collect {
+          case c if c.isLetterOrDigit => c
+          case c if c.isSpaceChar => '-'
+        }.toLowerCase)
+      ).get)
 
   val docTree = Document.mergeTrees(rawTrees)
 
