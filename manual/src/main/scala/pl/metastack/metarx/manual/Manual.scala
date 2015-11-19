@@ -1,30 +1,20 @@
-package pl.metastack.metarx
+package pl.metastack.metarx.manual
 
 import java.io.File
-import java.nio.file.{Paths, Files}
+import java.nio.file.{Files, Paths}
 
 import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.joda.time.DateTime
 
-import pl.metastack.metadocs.input._
 import pl.metastack.metadocs.document._
+import pl.metastack.metadocs.input._
 import pl.metastack.metadocs.input.metadocs._
 import pl.metastack.metadocs.output.html.Components
 import pl.metastack.metadocs.output.html.document.{Book, SinglePage}
 
-object Manual extends App {
-  val organisation = "MetaStack-pl"
-  val repoName = s"$organisation.github.io"
-  val projectName = "metarx"
-  val projectPath = new File("..", repoName)
-  val manualPath = new File(projectPath, projectName)
-  val manualPathStr = manualPath.getPath
-  val manualVersionPath = new File(manualPath, "v" + BuildInfo.version)
-  val manualVersionPathStr = manualVersionPath.getPath
-  val imagesPath = new File(manualVersionPath, "images")
-  val isSnapshot = BuildInfo.version.endsWith("SNAPSHOT")
+import pl.metastack.metarx.BuildInfo
 
+object Manual extends App with Shared {
   if (!projectPath.exists())
     Git.cloneRepository()
       .setURI(s"git@github.com:$organisation/$repoName.git")
@@ -32,6 +22,7 @@ object Manual extends App {
       .call()
 
   manualPath.mkdir()
+  manualVersionPath.mkdirs()
   manualVersionPath.listFiles().foreach(_.delete())
 
   imagesPath.mkdirs()
@@ -57,8 +48,8 @@ object Manual extends App {
       "li" -> ListItem)
 
   val rawTrees = Seq(
-    "introduction", "implementation", "data-structures", "development",
-    "support"
+    "introduction", "reactive-programming", "implementation", "data-structures",
+    "development", "support"
   ).map(chapter => s"manual/$chapter.md")
    .map(file =>
       Markdown.loadFileWithExtensions(file,
@@ -141,14 +132,4 @@ object Manual extends App {
     .foreach { image =>
       Files.copy(image.toPath, new File(imagesPath, image.getName).toPath)
     }
-
-  val repo = FileRepositoryBuilder.create(new File(projectPath, ".git"))
-  val git = new Git(repo)
-  git.add().addFilepattern(projectName).call()
-  if (!git.status().call().isClean) {
-    git.commit()
-      .setAll(true)
-      .setMessage(s"Update $projectName v${BuildInfo.version}").call()
-    git.push().call()
-  }
 }
