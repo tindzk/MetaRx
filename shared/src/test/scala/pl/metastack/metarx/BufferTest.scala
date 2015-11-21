@@ -205,4 +205,13 @@ object BufferTest extends SimpleTestSuite {
     buffer += "d"
     assertEquals(results, Seq("a,b,c", "a,b,c,d"))
   }
+
+  test("mkString") {
+    val buffer = Buffer("a", "b", "c")
+    val string: ReadChannel[String] = buffer.mkString(", ")
+
+    val results = mutable.ArrayBuffer.empty[String]
+    string.attach(results += _)
+    assertEquals(results, Seq("a, b, c"))
+  }
 }

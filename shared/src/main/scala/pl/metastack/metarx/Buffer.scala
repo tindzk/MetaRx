@@ -596,6 +596,13 @@ trait PollBuffer[T]
       get.reduce(op)
     }.distinct
 
+  def mkString(sep: String): ReadChannel[String] = {
+    changes.map { _ =>
+      get.mkString(sep)
+    }.distinct
+  }
+  def mkString(): ReadChannel[String] = mkString("")
+
   /** Returns first matching row; if it gets deleted, returns next match. */
   def find(f: T => Boolean): ReadPartialChannel[T] = filter(f).buffer.headOption
 
