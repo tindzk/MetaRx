@@ -591,6 +591,11 @@ trait PollBuffer[T]
       get.foldLeft(acc)(f)
     }.distinct
 
+  def reduce[U >: T](op: (U, U) ⇒ U): ReadChannel[U] =
+    changes.map { _ =>
+      get.reduce(op)
+    }.distinct
+
   /** Returns first matching row; if it gets deleted, returns next match. */
   def find(f: T => Boolean): ReadPartialChannel[T] = filter(f).buffer.headOption
 
@@ -679,6 +684,8 @@ class Buffer[T]
 }
 
 case class RefBuf[T]() extends Buffer[Ref[T]] {
+  List("a", "b", "c").mkString
+
   /** All row values that are stored within the [[Ref]] objects */
   def values: Seq[T] = elements.map(_.get)
 

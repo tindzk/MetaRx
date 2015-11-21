@@ -195,4 +195,14 @@ object BufferTest extends SimpleTestSuite {
       assertEquals(buf.get, Seq(1, 2, 3))
     }
   }
+
+  test("reduce") {
+    val buffer = Buffer("a", "b", "c")
+    val reduced: ReadChannel[String] = buffer.reduce(_ + "," + _)
+
+    val results = mutable.ArrayBuffer.empty[String]
+    reduced.attach(results += _)
+    buffer += "d"
+    assertEquals(results, Seq("a,b,c", "a,b,c,d"))
+  }
 }
