@@ -691,8 +691,6 @@ class Buffer[T]
 }
 
 case class RefBuf[T]() extends Buffer[Ref[T]] {
-  List("a", "b", "c").mkString
-
   /** All row values that are stored within the [[Ref]] objects */
   def values: Seq[T] = elements.map(_.get)
 
