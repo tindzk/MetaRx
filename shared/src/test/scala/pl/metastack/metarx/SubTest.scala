@@ -33,6 +33,15 @@ object SubTest extends SimpleTestSuite {
 
     subscriber := 200
     assertEquals(values, Seq(0, 23, 42, 404, 200))
+
+    subscriber := x + y
+    assertEquals(values, Seq(0, 23, 42, 404, 200, 42))
+
+    y := 500
+    assertEquals(values, Seq(0, 23, 42, 404, 200, 42, 521))
+
+    x := 100
+    assertEquals(values, Seq(0, 23, 42, 404, 200, 42, 521, 600))
   }
 
   test("get") {

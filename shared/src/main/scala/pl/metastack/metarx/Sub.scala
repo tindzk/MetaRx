@@ -11,13 +11,19 @@ sealed class Sub[T](init: T) extends Var[T](init) {
     old.foreach(_.dispose())
   }
 
-  override def produce(value: T): Unit = {
-    val old = subscription.getAndSet(None)
-    old.foreach(_.dispose())
-    super.produce(value)
-  }
+//  override def produce(value: T): Unit = {
+//    val old = subscription.getAndSet(None)
+//    old.foreach(_.dispose())
+//    super.produce(value)
+//  }
 
   def :=(subscriber: ReadChannel[T]): Unit = produce(subscriber)
+
+  override def :=(value: T): Unit = {
+    val old = subscription.getAndSet(None)
+    old.foreach(_.dispose())
+    super.:=(value)
+  }
 
   def detach(): Unit = {
     val old = subscription.getAndSet(None)
