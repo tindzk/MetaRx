@@ -2,7 +2,7 @@ package pl.metastack.metarx
 
 import java.util.concurrent.atomic.AtomicReference
 
-sealed class Var[T](init: T)
+class Var[T](init: T)
   extends StateChannel[T]
   with ChannelDefaultSize[T]
 {

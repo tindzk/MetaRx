@@ -2,10 +2,7 @@ package pl.metastack.metarx
 
 import java.util.concurrent.atomic.AtomicReference
 
-sealed class Subscriber[T]()
-  extends Channel[T]
-  with ChannelDefaultSize[T]
-{
+sealed class Sub[T](init: T) extends Var[T](init) {
   private val subscription =
     new AtomicReference(Option.empty[ReadChannel[Unit]])
 
@@ -21,17 +18,15 @@ sealed class Subscriber[T]()
     old.foreach(_.dispose())
   }
 
-  override def toString = s"Subscriber()"
-
-  override def flush(f: T => Unit): Unit = {}
+  override def toString = s"Sub()"
   override def dispose(): Unit = detach()
 }
 
-object Subscriber {
-  def apply[T](): Subscriber[T] = new Subscriber[T]()
+object Sub {
+  def apply[T](init: T): Sub[T] = new Sub[T](init)
 
-  def apply[T](ch: ReadChannel[T]): Subscriber[T] = {
-    val subscriber = new Subscriber[T]()
+  def apply[T](ch: ReadChannel[T]): Sub[T] = {
+    val subscriber = new Sub[T](null.asInstanceOf[T])
     subscriber := ch
     subscriber
   }
