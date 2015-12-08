@@ -1,5 +1,7 @@
 package pl.metastack.metarx
 
+import java.util.concurrent.atomic.AtomicReference
+
 import scala.concurrent.{ExecutionContext, Future}
 
 trait OptImplicits {
@@ -79,33 +81,34 @@ trait PartialChannel[T]
  * Publishes a stream of defined values. Use isEmpty() to detect when the
  * current value is cleared.
  */
-sealed class Opt[T](private var v: Option[T] = None)
+sealed class Opt[T](init: Option[T] = None)
   extends PartialChannel[T]
   with reactive.poll.PartialChannel
   with reactive.mutate.PartialChannel[T]
 {
-  attach(v = _)
+  private val v = new AtomicReference(init)
+  attach(v.set)
 
-  def isEmpty$: Boolean = v.isEmpty
-  def nonEmpty$: Boolean = v.nonEmpty
+  def isEmpty$: Boolean = v.get.isEmpty
+  def nonEmpty$: Boolean = v.get.nonEmpty
 
-  def isDefined$: Boolean = v.isDefined
-  def undefined$: Boolean = v.isEmpty
+  def isDefined$: Boolean = v.get.isDefined
+  def undefined$: Boolean = v.get.isEmpty
 
-  def contains$(value: T): Boolean = v.contains(value)
+  def contains$(value: T): Boolean = v.get.contains(value)
 
   def isDefined: ReadChannel[Boolean] = isNot(None)
   def undefined: ReadChannel[Boolean] = is(None)
 
-  def flush(f: Option[T] => Unit) { f(v) }
+  def flush(f: Option[T] => Unit) { f(v.get) }
 
   def clear() { produce(None) }
 
   def partialUpdate(f: PartialFunction[T, T]) {
-    v.foreach(value => produce(f.lift(value)))
+    v.get.foreach(value => produce(f.lift(value)))
   }
 
-  def get: Option[T] = v
+  def get: Option[T] = v.get
 
   private def str = get.map(_.toString).getOrElse("<undefined>")
   override def toString = s"Opt($str)"

@@ -1,13 +1,16 @@
 package pl.metastack.metarx
 
-sealed class Var[T](private var v: T)
+import java.util.concurrent.atomic.AtomicReference
+
+sealed class Var[T](init: T)
   extends StateChannel[T]
   with ChannelDefaultSize[T]
 {
-  attach(v = _)
+  private val v = new AtomicReference(init)
+  attach(v.set)
 
-  def flush(f: T => Unit) { f(v) }
-  def get: T = v
+  def flush(f: T => Unit): Unit = f(v.get)
+  def get: T = v.get
 
   override def toString = s"Var(${v.toString})"
 }
@@ -43,8 +46,8 @@ object PtrVar {
     change.attach(_ => produce())
 
     def get: T = _get
-    def flush(f: T => Unit) { f(get) }
-    def produce() { produce(get, sub) }
+    def flush(f: T => Unit): Unit = f(get)
+    def produce(): Unit = produce(get, sub)
 
     override def toString = s"PtrVar(${get.toString})"
   }

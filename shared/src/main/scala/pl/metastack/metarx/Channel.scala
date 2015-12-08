@@ -1,5 +1,7 @@
 package pl.metastack.metarx
 
+import java.util.concurrent.atomic.AtomicBoolean
+
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -362,11 +364,8 @@ trait WriteChannel[T]
 
   def flush(f: T => Unit)
 
-  def produce(value: T) {
-    synchronized {
-      children.foreach(_.process(value))
-    }
-  }
+  def produce(value: T): Unit =
+    children.foreach(_.process(value))
 
   def produce[U](value: T, ignore: ReadChannel[U]*) {
     assume(ignore.forall(cur => children.contains(cur.asInstanceOf[ChildChannel[T, _]])))
@@ -533,28 +532,32 @@ case class UniChildChannel[T, U](parent: ReadChannel[T],
   private var inProcess = false
 
   def process(value: T) {
-    if (doFilterCycles) {
-      if (inProcess) return
-    } else assert(!inProcess, "Cycle found")
+    synchronized {
+      if (doFilterCycles) {
+        if (inProcess) return
+      } else assert(!inProcess, "Cycle found")
 
-    inProcess = true
+      inProcess = true
 
-    observer(value) match {
-      case Result.Next(values @ _*) =>
-        values.foreach(produce)
-      case Result.Done(values @ _*) =>
-        values.foreach(produce)
-        dispose()
+      observer(value) match {
+        case Result.Next(values @ _*) =>
+          values.foreach(produce)
+        case Result.Done(values @ _*) =>
+          values.foreach(produce)
+          dispose()
+      }
+
+      inProcess = false
     }
-
-    inProcess = false
   }
 
   def flush(f: U => Unit) {
-    inProcess = true
-    if (onFlush.isDefined) onFlush.get().foreach(f)
-    else parent.flush(observer(_).values.foreach(f))
-    inProcess = false
+    synchronized {
+      inProcess = true
+      if (onFlush.isDefined) onFlush.get().foreach(f)
+      else parent.flush(observer(_).values.foreach(f))
+      inProcess = false
+    }
   }
 
   def dispose() {
