@@ -4,7 +4,7 @@ import minitest._
 
 import scala.collection.mutable.ArrayBuffer
 
-object SubscriberTest extends SimpleTestSuite {
+object SubTest extends SimpleTestSuite {
   test(":=") {
     val x = Var(23)
     val y = Var(404)
@@ -33,5 +33,17 @@ object SubscriberTest extends SimpleTestSuite {
 
     subscriber := 200
     assertEquals(values, Seq(0, 23, 42, 404, 200))
+  }
+
+  test("get") {
+    val x = Var(5.0)
+    val y = Sub(6.0)
+
+    y := x + 5.0
+    assertEquals(y.get, x.get + 5.0)
+
+    y := 8.0
+    x := 10.0
+    assertEquals(y.get, 8.0)
   }
 }
