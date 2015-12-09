@@ -2,7 +2,7 @@ package pl.metastack.metarx
 
 import java.util.concurrent.atomic.AtomicReference
 
-sealed class Sub[T](init: T) extends Var[T](init) {
+class Sub[T](init: T) extends Var[T](init) {
   private val subscription =
     new AtomicReference(Option.empty[ReadChannel[Unit]])
 
