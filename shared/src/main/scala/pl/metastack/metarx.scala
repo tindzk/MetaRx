@@ -20,7 +20,7 @@ package object metarx extends OptImplicits with BufferImplicits with ChannelImpl
       rch.zipWith(other)(_ && _)
     }
 
-    def &&(argument: Boolean): ReadChannel[Boolean] = {
+    def &&(argument: => Boolean): ReadChannel[Boolean] = {
       rch.map(_ && argument)
     }
 
@@ -28,7 +28,7 @@ package object metarx extends OptImplicits with BufferImplicits with ChannelImpl
       rch.zipWith(other)(_ || _)
     }
 
-    def ||(argument: Boolean): ReadChannel[Boolean] = {
+    def ||(argument: => Boolean): ReadChannel[Boolean] = {
       rch.map(_ || argument)
     }
 
@@ -47,11 +47,11 @@ package object metarx extends OptImplicits with BufferImplicits with ChannelImpl
     import num._
 
     def +(other: ReadChannel[T]): ReadChannel[T] = rch.zipWith(other)(plus)
-    def +(argument: T): ReadChannel[T] = rch.map(_ + argument)
+    def +(argument: => T): ReadChannel[T] = rch.map(_ + argument)
     def -(other: ReadChannel[T]): ReadChannel[T] = rch.zipWith(other)(minus)
-    def -(argument: T): ReadChannel[T] = rch.map(_- argument)
+    def -(argument: => T): ReadChannel[T] = rch.map(_- argument)
     def *(other: ReadChannel[T]): ReadChannel[T] = rch.zipWith(other)(times)
-    def *(argument: T): ReadChannel[T] = rch.map(_ * argument)
+    def *(argument: => T): ReadChannel[T] = rch.map(_ * argument)
 
     def unary_-(other: ReadChannel[T]): ReadChannel[T] = rch.map(-_)
 
@@ -73,7 +73,7 @@ package object metarx extends OptImplicits with BufferImplicits with ChannelImpl
     import num._
 
     def /(other: ReadChannel[T]): ReadChannel[T] = rch.zipWith(other)(quot)
-    def /(arg: T): ReadChannel[T] = rch.map(_ / arg)
+    def /(arg: => T): ReadChannel[T] = rch.map(_ / arg)
     def %(other: ReadChannel[T]): ReadChannel[T] = rch.zipWith(other)(rem)
   }
 
@@ -88,7 +88,7 @@ package object metarx extends OptImplicits with BufferImplicits with ChannelImpl
     import num._
 
     def /(other: ReadChannel[T]): ReadChannel[T] = rch.zipWith(other)(div)
-    def /(arg: T): ReadChannel[T] = rch.map(_ / arg)
+    def /(arg: => T): ReadChannel[T] = rch.map(_ / arg)
   }
 
   implicit class FractionalExtensions[T: Fractional](value: T)(implicit num: Fractional[T]) {
@@ -102,13 +102,13 @@ package object metarx extends OptImplicits with BufferImplicits with ChannelImpl
 
     def <(other: ReadChannel[T]): ReadChannel[Boolean] = rch.zipWith(other)(_ < _)
     def <=(other: ReadChannel[T]): ReadChannel[Boolean] = rch.zipWith(other)(_ <= _)
-    def <(arg: T): ReadChannel[Boolean] = rch.map(_ < arg)
-    def <=(arg: T): ReadChannel[Boolean] = rch.map(_ <= arg)
+    def <(arg: => T): ReadChannel[Boolean] = rch.map(_ < arg)
+    def <=(arg: => T): ReadChannel[Boolean] = rch.map(_ <= arg)
 
     def >(other: ReadChannel[T]): ReadChannel[Boolean] = rch.zipWith(other)(_ > _)
     def >=(other: ReadChannel[T]): ReadChannel[Boolean] = rch.zipWith(other)(_ >= _)
-    def >(arg: T): ReadChannel[Boolean] = rch.map(_ > arg)
-    def >=(arg: T): ReadChannel[Boolean] = rch.map(_ >= arg)
+    def >(arg: => T): ReadChannel[Boolean] = rch.map(_ > arg)
+    def >=(arg: => T): ReadChannel[Boolean] = rch.map(_ >= arg)
   }
 
   implicit class OrderingExtensions[T: Ordering](value: T)(implicit ord: Ordering[T]) {
@@ -122,6 +122,6 @@ package object metarx extends OptImplicits with BufferImplicits with ChannelImpl
 
   implicit class ReadChannelStringExtensions(rch: ReadChannel[String]) {
     def +(other: ReadChannel[String]): ReadChannel[String] = rch.zipWith(other)(_ + _)
-    def +(value: String): ReadChannel[String] = rch.map(_ + value)
+    def +(value: => String): ReadChannel[String] = rch.map(_ + value)
   }
 }
