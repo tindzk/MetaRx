@@ -8,8 +8,6 @@ import scala.concurrent.Promise
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object BufferTest extends SimpleTestSuite {
-  import Buffer._
-
   test("forall()") {
     val buf = Buffer(1, 2, 3)
 

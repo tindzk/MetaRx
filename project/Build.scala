@@ -59,8 +59,33 @@ object Build extends sbt.Build {
       libraryDependencies += "org.monifu" %% "minitest" % "0.13" % "test"
     )
 
+  lazy val upickle = crossProject
+    .crossType(CrossType.Pure)
+    .in(file("upickle"))
+    .settings(SharedSettings: _*)
+    .settings(name := "metarx-upickle")
+    .dependsOn(metaRx)
+    .settings(
+      testFrameworks += new TestFramework("minitest.runner.Framework")
+    )
+    .jsSettings(
+      libraryDependencies ++= Seq(
+        "com.lihaoyi" %%% "upickle" % "0.3.6",
+        "org.monifu" %%% "minitest" % "0.13" % "test"
+      )
+    )
+    .jvmSettings(
+      libraryDependencies ++= Seq(
+        "com.lihaoyi" %% "upickle" % "0.3.6",
+        "org.monifu" %% "minitest" % "0.13" % "test"
+      )
+    )
+
   lazy val js = metaRx.js
   lazy val jvm = metaRx.jvm
+
+  lazy val upickleJS = upickle.js
+  lazy val upickleJVM = upickle.jvm
 
   lazy val manual = project.in(file("manual"))
     .dependsOn(jvm)
