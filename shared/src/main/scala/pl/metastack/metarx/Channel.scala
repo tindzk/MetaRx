@@ -320,6 +320,12 @@ trait ReadChannel[T]
     res
   }
 
+  def takeWhile(f: T => Boolean): ReadChannel[T] =
+    forkUni { value =>
+      if (f(value)) Result.Next(value)
+      else Result.Done()
+    }
+
   def writeTo(write: WriteChannel[T]): Channel[T] = {
     val res = Channel[T]()
     val ignore = write << res

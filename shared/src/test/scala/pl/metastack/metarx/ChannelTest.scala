@@ -154,6 +154,20 @@ object ChannelTest extends SimpleTestSuite {
     assertEquals(items2, Seq(1))
   }
 
+  test("takeWhile()") {
+    val ch  = Var(42)
+    val dch = ch.takeWhile(_ > 10)
+
+    val arr = mutable.ArrayBuffer.empty[Int]
+    dch.attach(arr += _)
+
+    ch := 50
+    ch := 10
+    ch := 60
+
+    assertEquals(arr, mutable.ArrayBuffer(42, 50))
+  }
+
   test("take()") {
     val ch  = Var(42)
     val dch = ch.take(2)
