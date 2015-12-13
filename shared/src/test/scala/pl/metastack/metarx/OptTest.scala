@@ -1,13 +1,11 @@
 package pl.metastack.metarx
 
-import minitest._
-
 import scala.collection.mutable
 
 import scala.concurrent.Promise
 import scala.concurrent.ExecutionContext.Implicits.global
 
-object OptTest extends SimpleTestSuite {
+class OptTest extends CompatTest {
   test("foldLeft()") {
     val elems = mutable.ArrayBuffer.empty[Int]
 

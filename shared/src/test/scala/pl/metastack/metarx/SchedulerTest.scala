@@ -1,11 +1,8 @@
 package pl.metastack.metarx
 
-import minitest.SimpleTestSuite
-
 import scala.collection.mutable.ArrayBuffer
 
-object SchedulerTest extends SimpleTestSuite {
-
+class SchedulerTest extends CompatTest {
   test("schedule()") {
     import scala.concurrent.duration._
     val ch = Channel[Int]()
@@ -25,5 +22,4 @@ object SchedulerTest extends SimpleTestSuite {
       task.cancel()
     }
   }
-
 }

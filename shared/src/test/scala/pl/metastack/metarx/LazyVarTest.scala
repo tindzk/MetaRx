@@ -1,8 +1,6 @@
 package pl.metastack.metarx
 
-import minitest._
-
-object LazyVarTest extends SimpleTestSuite {
+class LazyVarTest extends CompatTest {
   def expect(a: Any) = new Object { def toBe(b: Any) = assertEquals(a, b) }
 
   test("apply()") {

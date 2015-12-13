@@ -1,13 +1,11 @@
 package pl.metastack.metarx
 
-import minitest._
-
 import scala.collection.mutable
 
 import scala.concurrent.Promise
 import scala.concurrent.ExecutionContext.Implicits.global
 
-object BufferTest extends SimpleTestSuite {
+class BufferTest extends CompatTest {
   test("forall()") {
     val buf = Buffer(1, 2, 3)
 
@@ -72,7 +70,7 @@ object BufferTest extends SimpleTestSuite {
     assertEquals(y.get, Seq(5, 9, 1, 2, 3))
   }
 
-  test("flatMapCh()") {
+  test("flatMapCh() (2)") {
     val x = Buffer(1, 2, 3)
     val y = x.flatMapCh[Int](value => Opt(value))
     assertEquals(x.get, y.buffer.get)
@@ -83,7 +81,7 @@ object BufferTest extends SimpleTestSuite {
     assertEquals(x.get, y.buffer.get)
   }
 
-  test("flatMapCh()") {
+  test("flatMapCh() (3)") {
     val x = Buffer(1, 2, 3)
     val ch = Opt(42)
     val y = x.flatMapCh[Int](value =>
@@ -114,7 +112,7 @@ object BufferTest extends SimpleTestSuite {
     assertEquals(x.get, Seq(1, 2, 3))
   }
 
-  test("removeAll()") {
+  test("removeAll() (2)") {
     val x = Buffer(1, 2, 3)
     val add = Buffer(4, 5, 6)
 
@@ -148,7 +146,7 @@ object BufferTest extends SimpleTestSuite {
     assertEquals(states.get, Seq(2, 3))
   }
 
-  test("buffer") {
+  test("buffer (2)") {
     val buffer = Buffer[Int]()
     val states = buffer.find(_ > 1).values.buffer
 

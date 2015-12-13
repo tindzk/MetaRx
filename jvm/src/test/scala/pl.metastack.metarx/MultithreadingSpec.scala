@@ -1,14 +1,13 @@
 package pl.metastack.metarx
 
+import org.scalatest.FunSuite
+
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import minitest._
-
-object MultithreadingSpec extends SimpleTestSuite {
-
+class MultithreadingSpec extends FunSuite {
   test("Multithreading") {
     val ch = Var(42)
     val collected = ArrayBuffer.empty[Int]
@@ -18,7 +17,6 @@ object MultithreadingSpec extends SimpleTestSuite {
     val aggregated = Future.sequence(tasks)
     Await.result(aggregated, 15.seconds)
 
-    assertEquals(collected.length, 101)
+    assert(collected.length == 101)
   }
-
 }

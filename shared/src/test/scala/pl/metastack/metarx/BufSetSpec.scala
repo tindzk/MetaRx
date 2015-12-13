@@ -1,8 +1,6 @@
 package pl.metastack.metarx
 
-import minitest._
-
-object BufSetSpec extends SimpleTestSuite {
+class BufSetSpec extends CompatTest {
   test("Creation") {
     val set = BufSet(1, 1, 1)
     assertEquals(set.toSet$, Set(1))

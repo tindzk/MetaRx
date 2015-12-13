@@ -1,9 +1,8 @@
 package pl.metastack.metarx
 
-import minitest._
-
-object BufferSpec extends SimpleTestSuite {
-  import ChannelSpec._
+class BufferSpec extends CompatTest {
+  def assertEqualsCh[T](ch: ReadChannel[T], ch2: ReadChannel[T]): Unit =
+    ChannelCompare(ch, ch2).tick()
 
   def forallBuf[T](f: Buffer[Int] => (ReadChannel[T], ReadChannel[T])) {
     def emptyChannel() {

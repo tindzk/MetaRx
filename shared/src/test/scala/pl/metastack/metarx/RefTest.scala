@@ -1,8 +1,6 @@
 package pl.metastack.metarx
 
-import minitest._
-
-object RefTest extends SimpleTestSuite {
+class RefTest extends CompatTest {
   test("==") {
     assert(Ref(1) != Ref(1))
 

@@ -1,7 +1,5 @@
 package pl.metastack.metarx
 
-import minitest._
-
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
@@ -10,7 +8,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 case class Test(a: Int, b: Boolean)
 
-object ChannelTest extends SimpleTestSuite {
+class ChannelTest extends CompatTest {
   test("should never be equal to some other Channel") {
     val a = Channel[Int]()
     val b = Channel[Int]()
@@ -57,7 +55,7 @@ object ChannelTest extends SimpleTestSuite {
     assertEquals(sum, 1)
   }
 
-  test("distinct()") {
+  test("distinct() (2)") {
     val ch = Opt[Int](0)
     val ch2 = ch.values.distinct
 
@@ -71,7 +69,7 @@ object ChannelTest extends SimpleTestSuite {
     assertEquals(sum, 3)
   }
 
-  test("distinct()") {
+  test("distinct() (3)") {
     val ch = Opt[Int](0)
     val ch2 = ch.values.distinct
 
@@ -85,7 +83,7 @@ object ChannelTest extends SimpleTestSuite {
     assertEquals(sum, 2)
   }
 
-  test("distinct()") {
+  test("distinct() (4)") {
     val ch = LazyVar[Int](42).distinct
 
     var sum = 0
@@ -120,7 +118,7 @@ object ChannelTest extends SimpleTestSuite {
     assertEquals(items, Seq(1, 2))
   }
 
-  test("take()") {
+  test("take() (2)") {
     val ch = Var[Int](0)
 
     var items = mutable.ArrayBuffer.empty[Int]
@@ -133,7 +131,7 @@ object ChannelTest extends SimpleTestSuite {
     assertEquals(items, Seq(0, 1))
   }
 
-  test("take()") {
+  test("take() (3)") {
     /* Multiple subscribers */
     val ch = Var[Int](0)
 
@@ -154,21 +152,7 @@ object ChannelTest extends SimpleTestSuite {
     assertEquals(items2, Seq(1))
   }
 
-  test("takeWhile()") {
-    val ch  = Var(42)
-    val dch = ch.takeWhile(_ > 10)
-
-    val arr = mutable.ArrayBuffer.empty[Int]
-    dch.attach(arr += _)
-
-    ch := 50
-    ch := 10
-    ch := 60
-
-    assertEquals(arr, mutable.ArrayBuffer(42, 50))
-  }
-
-  test("take()") {
+  test("take() (4)") {
     val ch  = Var(42)
     val dch = ch.take(2)
 
@@ -185,6 +169,20 @@ object ChannelTest extends SimpleTestSuite {
     assertEquals(arr2, mutable.ArrayBuffer(42, 23))
   }
 
+  test("takeWhile()") {
+    val ch  = Var(42)
+    val dch = ch.takeWhile(_ > 10)
+
+    val arr = mutable.ArrayBuffer.empty[Int]
+    dch.attach(arr += _)
+
+    ch := 50
+    ch := 10
+    ch := 60
+
+    assertEquals(arr, mutable.ArrayBuffer(42, 50))
+  }
+
   test("drop()") {
     val ch = Channel[Int]()
 
@@ -199,7 +197,7 @@ object ChannelTest extends SimpleTestSuite {
     assertEquals(sum, 3 + 4)
   }
 
-  test("drop()") {
+  test("drop() (2)") {
     val ch = Var(42)
     val dch = ch.drop(1)
 
@@ -358,7 +356,7 @@ object ChannelTest extends SimpleTestSuite {
     assertEquals(values, Seq((0, 1), (2, 1)))
   }
 
-  test("zip()") {
+  test("zip() (2)") {
     val ch = Var(0)
     val ch2 = Channel[Int]()
 
@@ -380,6 +378,23 @@ object ChannelTest extends SimpleTestSuite {
     ch2 := 43
     assertEquals(value, (24, 43))
   }
+
+  test("zip() (3)") {
+    val var1 = Var(1)
+    val var2 = Var(2)
+
+    var values = mutable.ArrayBuffer.empty[(Int, Int)]
+    var1.zip(var2).attach(values += _)
+
+    assertEquals(values, Seq((1, 2)))
+
+    var1 := 3
+    assertEquals(values, Seq((1, 2), (3, 2)))
+
+    var2 := 4
+    assertEquals(values, Seq((1, 2), (3, 2), (3, 4)))
+  }
+
 
   test("zip() with multiple inputs") {
     val ch = Var(0)
@@ -436,7 +451,7 @@ object ChannelTest extends SimpleTestSuite {
     assertEquals(values, mutable.ArrayBuffer(0, 2))
   }
 
-  test("flatMap()") {
+  test("flatMap() (2)") {
     val ch = Channel[Int]()
 
     val ch2 = Var(2)
@@ -460,6 +475,15 @@ object ChannelTest extends SimpleTestSuite {
     ch3 := 42
     ch2 := 50 /* ch2 should not be attached anymore to flatMap(). */
     assertEquals(cur, 42)
+  }
+
+  test("flatMap() (3)") {
+    var value = ""
+    Var(42)
+      .flatMap(x => Var(x.toString))
+      .filter(_ => true)
+      .attach(value = _)
+    assertEquals(value, "42")
   }
 
   test("flatMapCh()") {
@@ -490,7 +514,7 @@ object ChannelTest extends SimpleTestSuite {
     assertEquals(sum, 3)
   } */
 
-  test("flatMapCh()") {
+  test("flatMapCh() (2)") {
     val ch = Opt[Int]()
     val ch2 = Channel[Int]()
 
@@ -506,7 +530,7 @@ object ChannelTest extends SimpleTestSuite {
     assertEquals(sum, 5)
   }
 
-  test("flatMapCh()") {
+  test("flatMapCh() (3)") {
     val ch = Opt[Int]()
     val map = ch.flatMapCh(_ => Var(42))
 
@@ -577,7 +601,7 @@ object ChannelTest extends SimpleTestSuite {
     assertEquals(states, mutable.ArrayBuffer(true, false))
   }
 
-  test("isEmpty()") {
+  test("isEmpty() (2)") {
     val ch = Var[Int](2)
 
     var states = mutable.ArrayBuffer.empty[Boolean]
@@ -600,7 +624,7 @@ object ChannelTest extends SimpleTestSuite {
     assertEquals(states, mutable.ArrayBuffer(false, true))
   }
 
-  test("nonEmpty()") {
+  test("nonEmpty() (2)") {
     val ch = Var[Int](2)
 
     var states = mutable.ArrayBuffer.empty[Boolean]
@@ -609,12 +633,6 @@ object ChannelTest extends SimpleTestSuite {
     ch := 1
 
     assertEquals(states, mutable.ArrayBuffer(true))
-  }
-
-  test("flatMap()") {
-    var value = ""
-    Var(42).flatMap(x => Var(x.toString)).filter(_ => true).attach(value = _)
-    assertEquals(value, "42")
   }
 
   test("collect()") {
@@ -632,7 +650,7 @@ object ChannelTest extends SimpleTestSuite {
     assertEquals(states, mutable.ArrayBuffer(42))
   }
 
-  test("collect()") {
+  test("collect() (2)") {
     val ch = Buffer[Int](1, 2, 3).buffer
     val map = ch.changes.collect { case Buffer.Delta.Insert(_, 2) => 42 }
 
@@ -661,22 +679,6 @@ object ChannelTest extends SimpleTestSuite {
     ch := 2
     assertEquals(states, mutable.ArrayBuffer(1, 2))
     assertEquals(wrStates, mutable.ArrayBuffer(2))
-  }
-
-  test("zip()") {
-    val var1 = Var(1)
-    val var2 = Var(2)
-
-    var values = mutable.ArrayBuffer.empty[(Int, Int)]
-    var1.zip(var2).attach(values += _)
-
-    assertEquals(values, Seq((1, 2)))
-
-    var1 := 3
-    assertEquals(values, Seq((1, 2), (3, 2)))
-
-    var2 := 4
-    assertEquals(values, Seq((1, 2), (3, 2), (3, 4)))
   }
 
   test("state()") {

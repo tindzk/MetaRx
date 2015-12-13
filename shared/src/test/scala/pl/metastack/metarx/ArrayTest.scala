@@ -1,8 +1,6 @@
 package pl.metastack.metarx
 
-import minitest._
-
-object ArrayTest extends SimpleTestSuite {
+class ArrayTest extends CompatTest {
   test("append, remove") {
     val arr = Array[Int]()
 

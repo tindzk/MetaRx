@@ -1,10 +1,8 @@
 package pl.metastack.metarx
 
-import minitest._
-
 import scala.collection.mutable.ArrayBuffer
 
-object SubTest extends SimpleTestSuite {
+class SubTest extends CompatTest {
   test(":=") {
     val x = Var(23)
     val y = Var(404)

@@ -1,7 +1,5 @@
 package pl.metastack.metarx
 
-import minitest._
-
 import scala.collection.mutable
 
 /** Checks whether two channels behave in the same way. */
@@ -17,10 +15,9 @@ case class ChannelCompare[T](ch: ReadChannel[T], ch2: ReadChannel[T]) {
   }
 }
 
-object ChannelSpec extends SimpleTestSuite {
-  def assertEqualsCh[T](ch: ReadChannel[T], ch2: ReadChannel[T]) {
+class ChannelSpec extends CompatTest {
+  def assertEqualsCh[T](ch: ReadChannel[T], ch2: ReadChannel[T]): Unit =
     ChannelCompare(ch, ch2).tick()
-  }
 
   def forallChVal[T](f: (Channel[Int], Int) => (ReadChannel[T], ReadChannel[T])) {
     /* Different channel types may differ in their semantics. */
@@ -74,7 +71,7 @@ object ChannelSpec extends SimpleTestSuite {
     forallChVal((ch, value) => (ch === value, (ch !== value) map(!_) ))
   }
 
-  test("equal operators") {
+  test("equal operators (2)") {
     forallCh((ch) => (ch === ch, (ch !== ch) map(!_) ))
   }
 

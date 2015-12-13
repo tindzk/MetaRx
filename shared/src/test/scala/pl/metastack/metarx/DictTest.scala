@@ -1,10 +1,8 @@
 package pl.metastack.metarx
 
-import minitest._
-
 import scala.collection.mutable
 
-object DictTest extends SimpleTestSuite {
+class DictTest extends CompatTest {
   test("size()") {
     val dict = Dict[Int, Int]()
 
@@ -16,7 +14,7 @@ object DictTest extends SimpleTestSuite {
     assertEquals(size, 1)
   }
 
-  test("size()") {
+  test("size() (2)") {
     val buf = Buffer(1, 2, 3)
     val map = buf.mapTo(_ => -1)
 
