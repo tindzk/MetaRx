@@ -24,12 +24,19 @@ class AsyncScheduler extends Scheduler {
   def clearInterval(task: Interval): Unit =
     js.Dynamic.global.clearInterval(task)
 
-  def schedule(interval: FiniteDuration, r: Runnable): Cancelable = {
+  override def scheduleOnce(r: Runnable): Cancelable = {
+    r.run()
+    Cancelable()
+  }
+
+  override def schedule(interval: FiniteDuration, r: Runnable): Cancelable = {
     val task = setInterval(interval.toMillis, r)
     Cancelable(clearInterval(task))
   }
 
-  def scheduleOnce(initialDelay: FiniteDuration, r: Runnable): Cancelable = {
+  override def scheduleOnce(initialDelay: FiniteDuration,
+                            r: Runnable
+                           ): Cancelable = {
     val task = setTimeout(initialDelay.toMillis, r)
     Cancelable(clearTimeout(task))
   }

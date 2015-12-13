@@ -7,10 +7,16 @@ import scala.concurrent.duration._
  */
 trait Scheduler {
   def schedule(interval: FiniteDuration, r: Runnable): Cancelable
+  def scheduleOnce(action: Runnable): Cancelable
   def scheduleOnce(initialDelay: FiniteDuration, action: Runnable): Cancelable
 
   def schedule(interval: FiniteDuration)(action: => Unit): Cancelable =
     schedule(interval, new Runnable {
+      def run(): Unit = action
+    })
+
+  def scheduleOnce(action: => Unit): Cancelable =
+    scheduleOnce(new Runnable {
       def run(): Unit = action
     })
 
@@ -41,4 +47,8 @@ object Cancelable {
           true
         }
     }
+}
+
+trait DefaultScheduler {
+  implicit val scheduler = new SyncScheduler
 }

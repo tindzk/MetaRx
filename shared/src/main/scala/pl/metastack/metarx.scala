@@ -2,7 +2,12 @@ package pl.metastack
 
 import scala.math.{Fractional, Numeric}
 
-package object metarx extends OptImplicits with BufferImplicits with ChannelImplicits {
+package object metarx
+  extends OptImplicits
+  with BufferImplicits
+  with ChannelImplicits
+  with DefaultScheduler {
+
   implicit def FunctionToWriteChannel[T](f: T => Unit): WriteChannel[T] = {
     val ch = Channel[T]()
     ch.attach(f)

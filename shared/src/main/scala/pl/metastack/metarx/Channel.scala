@@ -150,13 +150,17 @@ trait ReadChannel[T]
   def child(): ReadChannel[T] =
     forkUni(t => Result.Next(t))
 
-  def silentAttach(f: T => Unit): ReadChannel[Unit] =
+  def silentAttach(f: T => Unit)
+                  (implicit scheduler: Scheduler): ReadChannel[Unit] =
     forkUni { value =>
-      f(value)
+      scheduler.scheduleOnce {
+        f(value)
+      }
+
       Result.Next()
     }
 
-  def attach(f: T => Unit): ReadChannel[Unit] = {
+  def attach(f: T => Unit)(implicit scheduler: Scheduler): ReadChannel[Unit] = {
     val ch = silentAttach(f).asInstanceOf[UniChildChannel[T, Unit]]
     flush(ch.process)
     ch
