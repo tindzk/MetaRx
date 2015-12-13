@@ -24,7 +24,7 @@ object Build extends sbt.Build {
   )
 
   lazy val root = project.in(file("."))
-    .aggregate(js, jvm)
+    .aggregate(js, jvm, upickle.js, upickle.jvm)
     .settings(SharedSettings: _*)
     .settings(publishArtifact := false)
 
