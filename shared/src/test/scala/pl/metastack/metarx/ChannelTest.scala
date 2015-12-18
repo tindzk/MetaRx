@@ -942,7 +942,6 @@ class ChannelTest extends CompatTest {
     assertEquals(res.cache.get, Some(2))
   }
 
-
   test("Logical division between Channel[Fractional]") {
     val ch1 = Var[Double](9)
     val ch2 = Var[Double](2)

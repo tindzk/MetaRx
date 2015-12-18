@@ -404,13 +404,13 @@ trait PollBuffer[T]
     changes.attach {
       case Delta.Insert(Position.Head(), element) => hd := Some(element)
       case Delta.Insert(Position.Last(), element)
-        if hd.isEmpty$ => hd := Some(element)
+        if hd.get.isEmpty => hd := Some(element)
       case Delta.Insert(Position.Before(before), element)
-        if hd.contains$(before) => hd := Some(element)
+        if hd.get.contains(before) => hd := Some(element)
       case Delta.Replace(reference, element)
-        if hd.contains$(reference) => hd := Some(element)
+        if hd.get.contains(reference) => hd := Some(element)
       case Delta.Remove(element)
-        if hd.contains$(element) => hd := Some(elements.head)
+        if hd.get.contains(element) => hd := Some(elements.head)
       case _ =>
     }
 
@@ -422,15 +422,15 @@ trait PollBuffer[T]
 
     changes.attach {
       case Delta.Insert(Position.Head(), element)
-        if lst.isEmpty$ => lst := Some(element)
+        if lst.get.isEmpty => lst := Some(element)
       case Delta.Insert(Position.Last(), element) =>
         lst := Some(element)
       case Delta.Insert(Position.After(after), element)
-        if lst.contains$(after) => lst := Some(element)
+        if lst.get.contains(after) => lst := Some(element)
       case Delta.Replace(reference, element)
-        if lst.contains$(reference) => lst := Some(element)
+        if lst.get.contains(reference) => lst := Some(element)
       case Delta.Remove(element)
-        if lst.contains$(element) => lst := Some(elements.last)
+        if lst.get.contains(element) => lst := Some(elements.last)
       case _ =>
     }
 

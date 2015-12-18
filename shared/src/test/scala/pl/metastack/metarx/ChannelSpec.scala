@@ -88,13 +88,13 @@ class ChannelSpec extends CompatTest {
 
   test("isEmpty") {
     assertEqualsCh(Var(42).isEmpty, Var(false))
-    assertEqualsCh(Opt().isEmpty, Var(true))
+    assertEqualsCh(Opt[Unit]().isDefined, Var(false))
     forallCh(ch => (ch.isEmpty, ch.nonEmpty.map(!_)))
   }
 
   test("size") {
     assertEqualsCh(Var(42).size, Var(1))
-    assertEqualsCh(Opt().size, Var(0))
+    assertEqualsCh(Opt[Unit]().count, Var(0))
     assertEqualsCh(Opt(1).size, Var(1))
     forallCh(ch => (ch.size, ch.foldLeft(0) { case (acc, cur) => acc + 1 }))
   }
@@ -108,13 +108,13 @@ class ChannelSpec extends CompatTest {
   test("Opt") {
     forallCh(ch => (ch.toOpt.values, ch))
 
-    assertEqualsCh(Opt().isDefined.head, Var(false))
+    assertEqualsCh(Opt[Unit]().isDefined.head, Var(false))
     assertEqualsCh(Opt(42).isDefined.head, Var(true))
 
-    assertEqualsCh(Opt().isDefined, Opt().nonEmpty)
+    assertEqualsCh(Opt[Unit]().isDefined, !Opt[Unit]().undefined)
     assertEqualsCh(Opt(42).isDefined, Opt(42).nonEmpty)
 
     assertEqualsCh(Opt(42).values, Var(42))
-    assertEqualsCh(Opt().values, Channel())
+    assertEqualsCh(Opt[Unit]().values, Channel[Unit]())
   }
 }

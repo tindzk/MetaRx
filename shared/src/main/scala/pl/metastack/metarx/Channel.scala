@@ -58,6 +58,7 @@ trait ReadChannel[T]
   with reactive.stream.MapExtended[ReadChannel, T]
   with reactive.stream.Cache[T]
   with reactive.stream.Size
+  with reactive.stream.PartialChannel[T]
   with reactive.poll.Flush[T]
   with Disposable
 {
@@ -357,6 +358,50 @@ trait ReadChannel[T]
       }
     }
   }
+
+  override def values[U](implicit ev: T <:< Option[U]): ReadChannel[U] =
+    asInstanceOf[ReadChannel[Option[U]]].forkUni {
+      case None        => Result.Next()
+      case Some(value) => Result.Next(value)
+    }
+
+  override def isDefined(implicit ev: T <:< Option[_]): ReadChannel[Boolean] =
+    asInstanceOf[ReadChannel[Option[_]]].isNot(None)
+
+  override def undefined(implicit ev: T <:< Option[_]): ReadChannel[Boolean] =
+    asInstanceOf[ReadChannel[Option[_]]].is(None)
+
+  override def mapValues[U, V](f: U => V)(implicit ev: T <:< Option[U]): ReadChannel[Option[V]] =
+    asInstanceOf[ReadChannel[Option[U]]].forkUni {
+      case None        => Result.Next(None)
+      case Some(value) => Result.Next(Some(f(value)))
+    }
+
+  override def mapOrElse[U, V](f: U => V, default: => V)(implicit ev: T <:< Option[U]): ReadChannel[V] = {
+    lazy val d = default
+    asInstanceOf[ReadChannel[Option[U]]].forkUni {
+      case None        => Result.Next(d)
+      case Some(value) => Result.Next(f(value))
+    }
+  }
+
+  override def count(implicit ev: T <:< Option[_]): ReadChannel[Int] =
+    asInstanceOf[ReadChannel[Option[_]]].foldLeft(0) {
+      case (acc, Some(_)) => acc + 1
+      case (acc, None)    => 0
+    }
+
+  override def orElse[U](default: => ReadChannel[U])(implicit ev: T <:< Option[U]): ReadChannel[U] =
+    asInstanceOf[ReadChannel[Option[U]]].flatMap {
+      case None        => default
+      case Some(value) => Var(value)
+    }
+
+  override def contains[U](value: U)(implicit ev: T <:< Option[U]): ReadChannel[Boolean] =
+    asInstanceOf[ReadChannel[Option[U]]].map {
+      case Some(`value`) => true
+      case _             => false
+    }
 }
 
 trait WriteChannel[T]

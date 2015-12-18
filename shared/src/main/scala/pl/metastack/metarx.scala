@@ -3,9 +3,11 @@ package pl.metastack
 import scala.math.{Fractional, Numeric}
 
 package object metarx
-  extends OptImplicits
-  with BufferImplicits
+  extends BufferImplicits
   with ChannelImplicits {
+
+  type Opt[T] = Var[Option[T]]
+  type ReadPartialChannel[T] = ReadStateChannel[Option[T]]
 
   implicit def FunctionToWriteChannel[T](f: T => Unit): WriteChannel[T] = {
     val ch = Channel[T]()

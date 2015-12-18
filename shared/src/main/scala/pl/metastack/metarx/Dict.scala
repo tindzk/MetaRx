@@ -108,7 +108,7 @@ trait DeltaDict[A, B]
       case Delta.Insert(`key`, value) => res := Some(value)
       case Delta.Update(`key`, value) => res := Some(value)
       case Delta.Remove(`key`) => res.clear()
-      case Delta.Clear() if res.nonEmpty$ => res.clear()
+      case Delta.Clear() if res.get.nonEmpty => res.clear()
       case _ =>
     }
 

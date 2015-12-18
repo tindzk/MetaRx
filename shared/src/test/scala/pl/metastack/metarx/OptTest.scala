@@ -51,7 +51,7 @@ class OptTest extends CompatTest {
 
     val ch = Opt("a")
 
-    val size = ch.size
+    val size = ch.count
     size.attach(elems += _)
 
     ch.clear()
@@ -89,8 +89,8 @@ class OptTest extends CompatTest {
     val elements = mutable.ArrayBuffer.empty[Int]
 
     val x = Opt[String]()
-    x.mapValues(_.toInt)
-     .mapValues(_ * 2)
+    x.mapValues[String, Int](_.toInt)
+     .mapValues[Int, Int](_ * 2)
      .orElse(Var(-1))
      .attach(elements += _)
     x := Some("42")
@@ -103,7 +103,7 @@ class OptTest extends CompatTest {
     val elements = mutable.ArrayBuffer.empty[Int]
 
     val x = Opt[Int]()
-    x.mapOrElse(_ + 1, 42).attach(elements += _)
+    x.mapOrElse[Int, Int](_ + 1, 42).attach(elements += _)
     x := Some(23)
     x := None
 
@@ -117,7 +117,7 @@ class OptTest extends CompatTest {
     def f: Int = { i += 1; i }
 
     val x = Opt[Int]()
-    val map = x.mapOrElse(_ + 1, f)
+    val map = x.mapOrElse[Int, Int](_ + 1, f)
     assertEquals(i, 41)
     map.attach(elements += _)
     assertEquals(i, 42)

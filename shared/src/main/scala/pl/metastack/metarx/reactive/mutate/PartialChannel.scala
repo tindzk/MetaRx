@@ -1,8 +1,9 @@
 package pl.metastack.metarx.reactive.mutate
 
 trait PartialChannel[T] {
-  def partialUpdate(f: PartialFunction[T, T])
+  def partialUpdate[U](f: PartialFunction[U, U])
+                      (implicit ev: T <:< Option[U]): Unit
 
   /** Clear current value (if exists) */
-  def clear()
+  def clear()(implicit ev: T <:< Option[_]): Unit
 }

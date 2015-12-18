@@ -5,12 +5,25 @@ import java.util.concurrent.atomic.AtomicReference
 class Var[T](init: T)
   extends StateChannel[T]
   with ChannelDefaultSize[T]
+  with reactive.mutate.PartialChannel[T]
 {
   private val v = new AtomicReference(init)
   attach(v.set)
 
   def flush(f: T => Unit): Unit = f(v.get)
+
   def get: T = v.get
+
+  override def clear()(implicit ev: T <:< Option[_]): Unit =
+    asInstanceOf[StateChannel[Option[_]]].produce(None)
+
+  override def partialUpdate[U](f: PartialFunction[U, U])
+                               (implicit ev: T <:< Option[U]): Unit =
+    v.asInstanceOf[AtomicReference[Option[U]]]
+     .get
+     .foreach(value =>
+       asInstanceOf[StateChannel[Option[U]]]
+         .produce(f.lift(value)))
 
   override def toString = s"Var(${v.toString})"
 }
