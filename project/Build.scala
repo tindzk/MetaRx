@@ -20,7 +20,25 @@ object Build extends sbt.Build {
       "-unchecked",
       "-deprecation",
       "-encoding", "utf8"
-    )
+    ),
+    pomExtra :=
+      <url>https://github.com/MetaStack-pl/MetaRx</url>
+      <licenses>
+        <license>
+          <name>Apache-2.0</name>
+          <url>https://www.apache.org/licenses/LICENSE-2.0.html</url>
+        </license>
+      </licenses>
+      <scm>
+        <url>git@github.com:MetaStack-pl/MetaRx.git</url>
+      </scm>
+      <developers>
+        <developer>
+          <id>tindzk</id>
+          <name>Tim Nieradzik</name>
+          <url>http://github.com/tindzk/</url>
+        </developer>
+      </developers>
   )
 
   lazy val root = project.in(file("."))
@@ -32,25 +50,6 @@ object Build extends sbt.Build {
     .settings(SharedSettings: _*)
     .settings(sonatypeSettings: _*)
     .settings(
-      pomExtra :=
-        <url>https://github.com/MetaStack-pl/MetaRx</url>
-        <licenses>
-          <license>
-            <name>Apache-2.0</name>
-            <url>https://www.apache.org/licenses/LICENSE-2.0.html</url>
-          </license>
-        </licenses>
-        <scm>
-          <url>git@github.com:MetaStack-pl/MetaRx.git</url>
-        </scm>
-        <developers>
-          <developer>
-            <id>tindzk</id>
-            <name>Tim Nieradzik</name>
-            <url>http://github.com/tindzk/</url>
-          </developer>
-        </developers>,
-
       autoAPIMappings := true,
       apiMappings += (scalaInstance.value.libraryJar -> url(s"http://www.scala-lang.org/api/${scalaVersion.value}/"))
     )
