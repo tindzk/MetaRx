@@ -112,11 +112,11 @@ object Manual extends App with Shared {
         s"$manualPathStr/$folder" -> s"../$folder",
         s"$manualVersionPathStr/$folder" -> s"../../$folder")
     }.toMap ++
-    Map(s"$manualPathStr/images" -> s"v${BuildInfo.version}/images") ++ (
-      if (isSnapshot) Map.empty
-      else Map(
-        s"$manualPathStr/latest" -> s"v${BuildInfo.version}",
-        s"$manualPathStr/latest.html" -> s"v${BuildInfo.version}.html"))
+      (if (isSnapshot) Map.empty
+        else Map(
+          s"$manualPathStr/images" -> s"v${BuildInfo.version}/images",
+          s"$manualPathStr/latest" -> s"v${BuildInfo.version}",
+          s"$manualPathStr/latest.html" -> s"v${BuildInfo.version}.html"))
 
   links.map { case (from, to) =>
     Paths.get(from) -> Paths.get(to)
