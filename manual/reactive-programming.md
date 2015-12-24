@@ -32,7 +32,7 @@ As soon as the user inserts a new value for `m` or `b`, ``mAndB`` will produce a
 How channels work in detail is explained in the following sections. This example should only give an intuition of the fundamental concept as well as how data dependencies are expressed.
 
 ## Streams
-The term "stream" was used several times in this chapter. This term is polysemous and requires further explanation. In reactive programming there are different types of streams with severe semantic differences.
+The term "stream" was used several times in this chapter. This term is polysemous and requires further explanation. In reactive programming there are different types of streams with significant semantic differences.
 
 ### Observables
 [Rx](https://rx.codeplex.com/) (Reactive Extensions) is a contract designed by Microsoft which calls streams *observables* and defines rules how to properly interact with them. An observable can be subscribed to with an *observer* which has one function for the next element and two auxiliary ones for handling errors and the completion of the stream.

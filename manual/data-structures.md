@@ -8,7 +8,7 @@ MetaRx currently implements four reactive data structures:
 - **Sets:**  reactive ``Set[T]``
 
 ## Channels
-A channel models continuous values as a stream. It serves as a multiplexer for typed messages that consist of immutable values. Messages sent to the channel get propagated to the observers that have been attached to the channel — in the same order as they were added. It is possible to operate on channels with higher-order functions such as ``map()``, ``filter()`` or ``take()``. These methods may be chained, such that every produced values is propagated down the observer chain.
+A channel models continuous values as a stream. It serves as a multiplexer for typed messages that consist of immutable values. Messages sent to the channel get propagated to the observers that have been attached to the channel — in the same order as they were added. It is possible to operate on channels with higher-order functions such as ``map()``, ``filter()`` or ``take()``. These methods may be chained, such that every produced value is propagated down the observer chain.
 
 MetaRx differentiates between two top-level channel types:
 
