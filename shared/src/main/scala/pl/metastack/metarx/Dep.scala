@@ -4,7 +4,7 @@ class Dep[T](sub: Sub[T],
              f: ReadChannel[T] => ReadChannel[T],
              f2: => T
             ) extends StateChannel[T] with ChannelDefaultSize[T] {
-  attach(value => sub := f(Var(value)))
+  silentAttach(value => sub := f(Var(value)))
 
   def produce(subscriber: ReadChannel[T]): Unit =
     sub := f(subscriber)
