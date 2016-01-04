@@ -8,7 +8,7 @@ class DepSpec extends WordSpec with Matchers {
     val width: Sub[Double] = Sub(0.0)
 
     "creating simple dependencies" should {
-      val right = new Dep[Double](x, _ - width, x.get + width.get)
+      val right = x.dep(_ - width, x.get + width.get)
 
       "be initialized to zero" in {
         right.get should be(0.0)

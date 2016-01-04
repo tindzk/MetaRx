@@ -24,6 +24,9 @@ class Sub[T](init: T) extends Var[T](init) {
     old.foreach(_.dispose())
   }
 
+  def dep(f: ReadChannel[T] => ReadChannel[T], f2: => T): Dep[T] =
+    new Dep[T](this, f, f2)
+
   override def toString = s"Sub()"
   override def dispose(): Unit = detach()
 }
