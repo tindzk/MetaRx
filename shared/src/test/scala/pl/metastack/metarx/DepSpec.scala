@@ -8,28 +8,28 @@ class DepSpec extends WordSpec with Matchers {
     val width: Sub[Double] = Sub(0.0)
 
     "creating simple dependencies" should {
-      val right = x.dep(_ - width, _ + width.get)
+      val right = x.dep(_ + width.get, _ - width)
 
       "be initialized to zero" in {
         right.get should be(0.0)
       }
-      "update when the width changes" in {
+      "update `right` when `width` changes" in {
         width := 50.0
-        x.get should be(0.0)
         width.get should be(50.0)
         right.get should be(50.0)
+        x.get should be(0.0)
       }
-      "update when x changes" in {
+      "update `right` when `x` changes" in {
         x := 25.0
-        right.get should be(75.0)
         width.get should be(50.0)
+        right.get should be(75.0)  // x + width
       }
-      "update when right changes" in {
+      "update `x` when `right` changes" in {
         right := 100.0
-        x.get should be(50.0)
+        x.get should be(50.0)  // right - width
         width.get should be(50.0)
       }
-      "update right properly when width changes" in {
+      "update `x` and `right` when `width` changes" in {
         width := 25.0
         right.get should be(100.0)
         x.get should be(75.0)
