@@ -23,3 +23,20 @@ class Dep[T, U](sub: Sub[T],
 
   def flush(f: U => Unit): Unit = f(get)
 }
+
+class Dep2[T, U](sub: Sub[T], apply: ReadChannel[U] => ReadChannel[T], unapply: ReadChannel[T] => ReadChannel[U], getter: => U) { //extends ReadStateChannel[U] {
+//  private val internal = Sub[U](unapply)
+//  internal := sub.map(t => unapply)
+
+  def :=(channel: ReadChannel[U]): Unit = sub := apply(channel)
+  def :=(value: U): Unit = sub := apply(Var(value))
+  def get: U = getter
+
+//  override def flush(f: (U) => Unit): Unit = internal.flush(f)
+//
+//  override def size: ReadChannel[Int] = internal.size
+//
+//  override def dispose(): Unit = internal.dispose()
+
+  def toReadChannel: ReadChannel[U] = unapply(sub)
+}
