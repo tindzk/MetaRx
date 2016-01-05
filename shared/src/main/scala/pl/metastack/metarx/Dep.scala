@@ -1,13 +1,13 @@
 package pl.metastack.metarx
 
 class Dep[T](sub: Sub[T],
-             fwd: ReadChannel[T] => ReadChannel[T],
+             fwd: T => ReadChannel[T],
              bwd: T => T
             ) extends StateChannel[T] with ChannelDefaultSize[T] {
-  silentAttach(value => sub := fwd(Var(value)))
+  silentAttach(value => sub := fwd(value))
 
   def produce(subscriber: ReadChannel[T]): Unit =
-    sub := fwd(subscriber)
+    sub := subscriber.flatMap(fwd)
 
   def :=(subscriber: ReadChannel[T]): Unit = produce(subscriber)
 
