@@ -134,4 +134,7 @@ package object metarx
       rch.zipWith(other)(_ + _)
     def +(value: => String): ReadChannel[String] = rch.map(_ + value)
   }
+
+  implicit def DepToReadChannel[T, U](dep: Dep[T, U]): ReadChannel[U] =
+    dep.toReadChannel
 }

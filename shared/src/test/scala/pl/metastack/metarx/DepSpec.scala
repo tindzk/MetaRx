@@ -6,14 +6,12 @@ import scala.collection.mutable.ArrayBuffer
 import scala.language.implicitConversions
 
 class DepSpec extends WordSpec with Matchers {
-  implicit def dep2ToReadChannel[T, U](dep2: Dep2[T, U]): ReadChannel[U] = dep2.toReadChannel
-
   "Dep" when {
     val x: Sub[Double] = Sub(0.0)
     val width: Sub[Double] = Sub(0.0)
 
     "creating simple dependencies" should {
-      val right = new Dep2[Double, Double](x, _ - width, _ + width) //x.dep[Double](_ + width.get, _ - width)
+      val right = x.dep[Double](_ + width, _ - width)
 
       val values = ArrayBuffer.empty[Double]
       right.attach(values += _)
@@ -46,11 +44,13 @@ class DepSpec extends WordSpec with Matchers {
       }
     }
     "creating more complex dependencies" should {
-      val center = new Dep2[Double, Double](x, _ - (width / 2.0), _ + (width / 2.0)) //x.dep[Double](_ + (width.get / 2.0), _ - (width / 2.0))
+      val center = x.dep[Double](_ + (width / 2.0), _ - (width / 2.0))
 
       val screenX = Sub(0.0)
       val screenWidth = Sub(0.0)
-      val screenCenter = new Dep2[Double, Double](screenX, _ - (screenWidth / 2.0), _ + (screenWidth / 2.0)) //screenX.dep[Double](_ + (screenWidth.get / 2.0), _ - (screenWidth / 2.0))
+      val screenCenter = screenX.dep[Double](
+        _ + (screenWidth / 2.0),
+        _ - (screenWidth / 2.0))
 
       val values = ArrayBuffer.empty[Double]
       screenCenter.attach(values += _)
