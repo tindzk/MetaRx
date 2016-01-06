@@ -35,7 +35,7 @@ class DepSpec extends WordSpec with Matchers {
         x.get should be(50.0)  // right - width
         width.get should be(50.0)
 
-        values should be (Seq(0.0, 0.0, 50.0, 75.0, 100.0))
+        values should be (Seq(0.0, 50.0, 75.0, 100.0))
       }
       "update `x` and `right` when `width` changes" in {
         width := 25.0
