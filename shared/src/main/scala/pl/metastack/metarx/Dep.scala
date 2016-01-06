@@ -14,8 +14,6 @@ class Dep[T, U] private[metarx](sub: Sub[T],
     super.produce(value)
   }
 
-  override def produce(value: U): Unit = {
-    if (!ignore) sub := bwd(Var(value))
-    super.produce(value)
-  }
+  override def produce(value: U): Unit =
+    sub := bwd(Var(value))
 }
