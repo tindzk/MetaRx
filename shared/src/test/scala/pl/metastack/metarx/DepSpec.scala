@@ -10,9 +10,10 @@ class DepSpec extends WordSpec with Matchers {
     val x: Sub[Double] = Sub(0.0)
     val width: Sub[Double] = Sub(0.0)
 
-    "creating simple dependencies" should {
-      val right = x.dep[Double](_ + width, _ - width)
+    lazy val right = x.dep[Double](_ + width, _ - width)
+    lazy val center = x.dep[Double](_ + (width / 2.0), _ - (width / 2.0))
 
+    "creating simple dependencies" should {
       val values = ArrayBuffer.empty[Double]
       right.attach(values += _)
 
@@ -44,8 +45,6 @@ class DepSpec extends WordSpec with Matchers {
       }
     }
     "creating more complex dependencies" should {
-      val center = x.dep[Double](_ + (width / 2.0), _ - (width / 2.0))
-
       val screenX = Sub(0.0)
       val screenWidth = Sub(0.0)
       val screenCenter = screenX.dep[Double](
@@ -61,11 +60,13 @@ class DepSpec extends WordSpec with Matchers {
         screenX.get should be(0.0)
         screenWidth.get should be(0.0)
         screenCenter.get should be(0.0)
+        right.get should be(100.0)
       }
       "set center to screen center" in {
         center := screenCenter
         x.get should be(-12.5)
         center.get should be(0.0)
+        right.get should be(12.5)
       }
       "update screen information" in {
         screenX := 10.0
@@ -77,6 +78,14 @@ class DepSpec extends WordSpec with Matchers {
 
         x.get should be(247.5)  // screenCenter - (width / 2.0)
         center.get should be(260.0)
+        right.get should be(272.5)
+      }
+      "update right and verify everything still works" in {
+        width := 100.0
+        right := 200.0
+
+        x.get should be(100.0)
+        center.get should be(150.0)
       }
     }
   }
