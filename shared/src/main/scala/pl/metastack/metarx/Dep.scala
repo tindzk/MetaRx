@@ -1,7 +1,7 @@
 package pl.metastack.metarx
 
 /** @see [[Sub.dep()]] */
-private[metarx] class Dep[T, U](sub: Sub[T],
+class Dep[T, U] private[metarx](sub: Sub[T],
                                 fwd: ReadChannel[T] => ReadChannel[U],
                                 bwd: ReadChannel[U] => ReadChannel[T]) {
   private val channel = fwd(sub)
