@@ -3,13 +3,19 @@ package pl.metastack.metarx
 /** @see [[Sub.dep()]] */
 class Dep[T, U] private[metarx](sub: Sub[T],
                                 fwd: ReadChannel[T] => ReadChannel[U],
-                                bwd: ReadChannel[U] => ReadChannel[T]) {
-  private val channel = fwd(sub)
-  private val internal = Sub[U](channel)
+                                bwd: ReadChannel[U] => ReadChannel[T])
+  extends Sub[U](null.asInstanceOf[U]) {
+  private var ignore = true
+  this := fwd(sub)
+  ignore = false
 
-  def :=(channel: ReadChannel[U]): Unit = sub := bwd(channel)
-  def :=(value: U): Unit = sub := bwd(Var(value))
-  def get: U = internal.get
+  override def produce(value: ReadChannel[U]): Unit = {
+    if (!ignore) sub := bwd(value)
+    super.produce(value)
+  }
 
-  def toReadChannel: ReadChannel[U] = channel
+  override def produce(value: U): Unit = {
+    if (!ignore) sub := bwd(Var(value))
+    super.produce(value)
+  }
 }
