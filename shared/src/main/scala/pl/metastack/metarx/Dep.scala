@@ -24,10 +24,15 @@ class Dep[T, U](sub: Sub[T],
   def flush(f: U => Unit): Unit = f(get)
 }
 
-class Dep2[T, U](sub: Sub[T], apply: ReadChannel[U] => ReadChannel[T], unapply: ReadChannel[T] => ReadChannel[U], getter: => U) {
+class Dep2[T, U](sub: Sub[T], apply: ReadChannel[U] => ReadChannel[T], unapply: ReadChannel[T] => ReadChannel[U]) {
+  private var value: U = _
+  private val internal = Sub[U](unapply(sub))
+  internal.attach(u => value = u)
+  sub := sub.get
+
   def :=(channel: ReadChannel[U]): Unit = sub := apply(channel)
   def :=(value: U): Unit = sub := apply(Var(value))
-  def get: U = getter
+  def get: U = value
 
   def toReadChannel: ReadChannel[U] = unapply(sub)
 }
