@@ -3,7 +3,6 @@ package pl.metastack.metarx
 import org.scalatest.{Matchers, WordSpec}
 
 import scala.collection.mutable.ArrayBuffer
-import scala.language.implicitConversions
 
 class DepSpec extends WordSpec with Matchers {
   "Dep" when {
