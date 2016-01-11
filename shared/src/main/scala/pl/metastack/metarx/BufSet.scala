@@ -152,6 +152,8 @@ trait PollBufSet[T]
 
   val changes: ReadChannel[Delta[T]]
 
+  def get: Set[T] = elements.toSet
+
   def foreach(f: T => Unit) {
     elements.foreach(f)
   }
@@ -160,7 +162,9 @@ trait PollBufSet[T]
   def nonEmpty$: Boolean = elements.nonEmpty
   def contains$(value: T): Boolean = elements.contains(value)
 
+  @deprecated("Use `get`", "v0.1.5")
   def toSet$: Set[T] = elements.toSet
+
   def toSeq: ReadChannel[Seq[T]] = changes.map(_ => elements.toSeq)
 }
 
