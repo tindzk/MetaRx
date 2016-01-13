@@ -212,6 +212,7 @@ trait PollDict[A, B]
 
   def value$(key: A): B = mapping(key)
 
+  def get: Map[A, B] = mapping.toMap
   def get(key: A): Option[B] = mapping.get(key)
 
   def filter$(f: ((A, B)) => Boolean): ReadDict[A, B] =
@@ -221,6 +222,7 @@ trait PollDict[A, B]
   def exists$(f: ((A, B)) => Boolean): Boolean = mapping.exists(f)
   def forall$(f: ((A, B)) => Boolean): Boolean = mapping.forall(f)
 
+  @deprecated("Use `get`", "v0.1.5")
   def toMap: Map[A, B] = mapping.toMap
 
   def sortBy[C](f: (A, B) => C)(implicit ordering: Ordering[C]): ReadBuffer[(A, B)] = {
