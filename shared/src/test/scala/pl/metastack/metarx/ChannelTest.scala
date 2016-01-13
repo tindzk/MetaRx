@@ -1035,4 +1035,18 @@ class ChannelTest extends CompatTest {
       task.cancel()
     }
   }
+
+  test("port()") {
+    val ch = Channel[Int]()
+
+    val collected = ArrayBuffer.empty[Int]
+
+    val (read, write) = ch.port()
+    read.attach(collected += _)
+
+    write(42)
+    ch := 1
+
+    assert(collected == Seq(1))
+  }
 }

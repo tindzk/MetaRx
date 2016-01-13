@@ -467,6 +467,12 @@ trait Channel[T]
   extends ReadChannel[T]
   with WriteChannel[T]
 {
+  def port(): (ReadChannel[T], T => Unit) = {
+    val read  = map(identity[T])
+    val write = (value: T) => produce(value, read)
+    (read, write)
+  }
+
   def toOpt: Opt[T] = {
     val res = Opt[T]()
     attach(res := Some(_))
