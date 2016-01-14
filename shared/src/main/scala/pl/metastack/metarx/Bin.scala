@@ -12,8 +12,8 @@ class Bin[T](init: T)
 {
   private val v = new AtomicReference(init)
 
-  val left  = Channel[T]()
-  val right = Channel[T]()
+  val left  = StateChannel[T](v.get)
+  val right = StateChannel[T](v.get)
 
   left.attach(v.set)
   right.attach(v.set)

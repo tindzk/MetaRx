@@ -765,3 +765,11 @@ trait StateChannel[T] extends Channel[T] with ReadStateChannel[T] {
     children.clear()
   }
 }
+
+object StateChannel {
+  def apply[T](value: => T): StateChannel[T] =
+    new StateChannel[T] with ChannelDefaultSize[T] {
+      override def get: T = value
+      override def flush(f: T => Unit): Unit = f(value)
+    }
+}
