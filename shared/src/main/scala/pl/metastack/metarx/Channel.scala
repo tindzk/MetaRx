@@ -462,7 +462,10 @@ trait WriteChannel[T]
 trait Channel[T]
   extends ReadChannel[T]
   with WriteChannel[T]
+  with reactive.propagate.Bind[T]
 {
+  def dispose(): Unit
+
   def toOpt: Opt[T] = {
     val res = Opt[T]()
     attach(res := Some(_))
@@ -506,9 +509,6 @@ trait Channel[T]
     flush(obsThis.asInstanceOf[UniChildChannel[Any, Any]].process)
   }
 
-  def <<>>(other: Channel[T]) { bind(other) }
-  def <<>>(other: Channel[T], ignoreOther: ReadChannel[Unit]) { bind(other, ignoreOther) }
-
   /*def +(write: WriteChannel[T]): Channel[T] = {
     val res = new RootChannel[T] {
       def flush(f: T => Unit) { Channel.this.flush(f) }
@@ -517,8 +517,6 @@ trait Channel[T]
     this <<>> (res, ignore)
     res
   }*/
-
-  def dispose()
 
   override def toString = "Channel()"
 }
