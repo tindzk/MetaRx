@@ -2,12 +2,12 @@ package pl.metastack.metarx
 
 import java.util.concurrent.atomic.AtomicReference
 
-class Var[T](init: T)
+class Var[T](value: T)
   extends StateChannel[T]
   with ChannelDefaultSize[T]
   with reactive.mutate.PartialChannel[T]
 {
-  private val v = new AtomicReference(init)
+  private val v = new AtomicReference(value)
   attach(v.set)
 
   def flush(f: T => Unit): Unit = f(v.get)
@@ -25,43 +25,48 @@ class Var[T](init: T)
        asInstanceOf[StateChannel[Option[U]]]
          .produce(f.lift(value)))
 
-  override def toString = s"Var(${v.toString})"
+  override def toString = s"Var($get)"
 }
 
 object Var {
-  def apply[T](v: T) = new Var(v)
+  def apply[T](value: T) = new Var(value)
 }
 
-/* Upon each subscription, emit `v`. `v` is evaluated lazily. */
+/** Upon each subscription, emits `value`, which is evaluated lazily. */
+class LazyVar[T](value: => T) extends StateChannel[T] with ChannelDefaultSize[T] {
+  override def get: T = value
+  override def flush(f: T => Unit): Unit = f(value)
+
+  def produce(): Unit = produce(value)
+
+  override def toString = s"LazyVar($get)"
+}
+
 object LazyVar {
-  def apply[T](v: => T) = new StateChannel[T]
-    with ChannelDefaultSize[T]
-  {
-    def get: T = v
-    def flush(f: T => Unit) { f(v) }
-    // TODO Should not provide produce(T), only produce()
-    def produce() { this := v }
-
-    override def toString = s"LazyVar(${v.toString})"
-  }
+  def apply[T](value: => T) = new LazyVar(value)
 }
 
-/** Every produced value on the channel `change` indicates that the underlying
- * variable was modified and the current value can be retrieved via `get`.
- * If a value v is produced on the resulting channel instead, then set(v) is
- * called.
- */
+/**
+  * Every produced value on the channel `change` indicates that the underlying
+  * variable was modified and the current value can be retrieved via `get`.
+  * If a value v is produced on the resulting channel instead, then set(v) is
+  * called.
+  */
+class PtrVar[T](change: ReadChannel[_], _get: => T, set: T => Unit)
+  extends StateChannel[T] with ChannelDefaultSize[T]
+{
+  val sub = attach(set)
+  change.attach(_ => produce())
+
+  override def get: T = _get
+  override def flush(f: T => Unit): Unit = f(get)
+
+  def produce(): Unit = produce(get, sub)
+
+  override def toString = s"PtrVar($get)"
+}
+
 object PtrVar {
-  def apply[T](change: ReadChannel[_], _get: => T, set: T => Unit) = new StateChannel[T]
-    with ChannelDefaultSize[T]
-  {
-    val sub = attach(set)
-    change.attach(_ => produce())
-
-    def get: T = _get
-    def flush(f: T => Unit): Unit = f(get)
-    def produce(): Unit = produce(get, sub)
-
-    override def toString = s"PtrVar(${get.toString})"
-  }
+  def apply[T](change: ReadChannel[_], get: => T, set: T => Unit) =
+    new PtrVar[T](change, get, set)
 }
