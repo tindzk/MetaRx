@@ -59,6 +59,7 @@ trait ReadChannel[T]
   with reactive.stream.Size
   with reactive.stream.PartialChannel[T]
   with reactive.poll.Flush[T]
+  with reactive.propagate.Publish[T]
   with Disposable
 {
   import Channel.Observer
@@ -81,7 +82,6 @@ trait ReadChannel[T]
 
   def publish(ch: WriteChannel[T]): ReadChannel[Unit] = ch.subscribe(this)
   def publish[U](ch: WriteChannel[T], ignore: ReadChannel[U]): ReadChannel[Unit] = ch.subscribe(this, ignore)
-  def >>(ch: WriteChannel[T]) = publish(ch)
 
   def or(ch: ReadChannel[_]): ReadChannel[Unit] = {
     val that = this
