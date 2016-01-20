@@ -59,6 +59,7 @@ trait ReadChannel[T]
   with reactive.stream.Size
   with reactive.stream.PartialChannel[T]
   with reactive.poll.Flush[T]
+  with reactive.propagate.Publish[T]
   with Disposable
 {
   import Channel.Observer
@@ -81,7 +82,6 @@ trait ReadChannel[T]
 
   def publish(ch: WriteChannel[T]): ReadChannel[Unit] = ch.subscribe(this)
   def publish[U](ch: WriteChannel[T], ignore: ReadChannel[U]): ReadChannel[Unit] = ch.subscribe(this, ignore)
-  def >>(ch: WriteChannel[T]) = publish(ch)
 
   def or(ch: ReadChannel[_]): ReadChannel[Unit] = {
     val that = this
@@ -339,8 +339,8 @@ trait ReadChannel[T]
 
   def writeTo(write: WriteChannel[T]): Channel[T] = {
     val res = Channel[T]()
-    val ignore = write << res
-    res << (this, ignore)
+    val ignore = write.subscribe(res)
+    res.subscribe(this, ignore)
     res
   }
 
@@ -416,6 +416,7 @@ trait ReadChannel[T]
 
 trait WriteChannel[T]
   extends reactive.propagate.Produce[T]
+  with reactive.propagate.Subscribe[T]
 {
   import Channel.Observer
 
@@ -454,19 +455,17 @@ trait WriteChannel[T]
   /** Redirect stream from `other` to `this`. */
   def subscribe(ch: ReadChannel[T]): ReadChannel[Unit] = ch.attach(produce)
 
-  def subscribe[U](ch: ReadChannel[T],
-                   ignore: ReadChannel[U]): ReadChannel[Unit] =
+  def subscribe[U](ch: ReadChannel[T], ignore: ReadChannel[U]): ReadChannel[Unit] =
     ch.attach(produce(_, ignore))
-
-  def <<(ch: ReadChannel[T]): ReadChannel[Unit] = subscribe(ch)
-  def <<[U](ch: ReadChannel[T], ignore: ReadChannel[U]): ReadChannel[Unit] =
-    subscribe(ch, ignore)
 }
 
 trait Channel[T]
   extends ReadChannel[T]
   with WriteChannel[T]
+  with reactive.propagate.Bind[T]
 {
+  def dispose(): Unit
+
   def toOpt: Opt[T] = {
     val res = Opt[T]()
     attach(res := Some(_))
@@ -510,9 +509,6 @@ trait Channel[T]
     flush(obsThis.asInstanceOf[UniChildChannel[Any, Any]].process)
   }
 
-  def <<>>(other: Channel[T]) { bind(other) }
-  def <<>>(other: Channel[T], ignoreOther: ReadChannel[Unit]) { bind(other, ignoreOther) }
-
   /*def +(write: WriteChannel[T]): Channel[T] = {
     val res = new RootChannel[T] {
       def flush(f: T => Unit) { Channel.this.flush(f) }
@@ -521,8 +517,6 @@ trait Channel[T]
     this <<>> (res, ignore)
     res
   }*/
-
-  def dispose()
 
   override def toString = "Channel()"
 }

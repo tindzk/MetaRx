@@ -743,7 +743,7 @@ class ChannelTest extends CompatTest {
     val ch1 = Var[Boolean](true)
     val chRes = !ch1
 
-    var states = mutable.ArrayBuffer.empty[Boolean]
+    val states = mutable.ArrayBuffer.empty[Boolean]
     chRes.attach(states += _)
 
     ch1 := false
@@ -766,6 +766,22 @@ class ChannelTest extends CompatTest {
     ch1 := false
     assertEquals(numTrues, 1)
     assertEquals(numFalses, 2)
+  }
+
+  test("Logical tests for Opt[Boolean]") {
+    import pl.metastack.metarx._
+
+    val opt = Opt[Boolean]()
+    var count = 0
+
+    val trueCh = opt.onTrue
+    trueCh.attach(_ => count += 1)
+
+    opt := false
+    assert(count == 0)
+
+    opt := true
+    assert(count == 1)
   }
 
   test("Logical operators for ReadChannel[Boolean]") {
@@ -844,6 +860,20 @@ class ChannelTest extends CompatTest {
 
     assertEquals(andStates, mutable.ArrayBuffer(false, false))
     assertEquals(andStates2, mutable.ArrayBuffer(true, false))
+  }
+
+  test("Logical && operator between Opt[Boolean] and Boolean") {
+    import pl.metastack.metarx._
+
+    val ch = Opt[Boolean]()
+
+    val and = ch && false
+    var states = mutable.ArrayBuffer.empty[Option[Boolean]]
+    and.attach(states += _)
+
+    ch := true
+
+    assertEquals(states, mutable.ArrayBuffer(None, Some(false)))
   }
 
   test("Logical || operator between Channel[Boolean] and Boolean") {
