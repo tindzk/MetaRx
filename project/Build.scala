@@ -7,9 +7,9 @@ import sbtbuildinfo.BuildInfoPlugin.autoImport._
 
 object Build extends sbt.Build {
   object Dependencies {
-    val ScalaTest = "3.0.0-M14"
+    val ScalaTest = "3.0.0-M15"
     val MetaDocs  = "0.1.1-SNAPSHOT"
-    val Upickle   = "0.3.6"
+    val Upickle   = "0.3.7"
   }
 
   val SharedSettings = Seq(
