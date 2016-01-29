@@ -57,8 +57,10 @@ object Build extends sbt.Build {
       libraryDependencies +=
         "org.scalatest" %%% "scalatest" % Dependencies.ScalaTest % "test",
 
+      scalaJSStage in Global := FastOptStage,
+
       /* Use io.js for faster compilation of test cases */
-      scalaJSStage in Global := FastOptStage
+      scalaJSUseRhino in Global := false
     )
     .jvmSettings(
       libraryDependencies +=
