@@ -112,7 +112,7 @@ Functions passed to higher-order operations are evaluated on-demand:
 
 [scala type="section" value="call-semantics" file="Examples"]
 
-The value of a state channel gets propagated to a child when it requests the value (``flush()``). In the example, ``Var`` delays the propagation of the initial value 42 until the first ``attach()`` call. ``attach()`` goes up the channel chain and triggers the flush on each channel. In other words, ``map(f)`` merely registers an observer, but doesn't call ``f`` right away. ``f`` is called each time when any of its direct or indirect children uses ``attach()``.
+The value of a state channel gets propagated to a child when it requests the value (``flush()``). In the example, ``Var`` delays the propagation of the initial value 42 until the first ``attach()`` call. ``attach()`` goes up the channel chain and triggers the flush on each channel. In other words, ``map(f)`` merely registers an observer, but does not call ``f`` right away. ``f`` is called each time when any of its direct or indirect children uses ``attach()``.
 
 This reduces the memory usage and complexity of the channel implementation as no caching needs to be performed. On the other hand, you may want to perform on-site caching of the results of ``f``, especially if the function is side-effecting.
 
@@ -122,6 +122,8 @@ There are operations that maintain state for all observers. For example, ``skip(
 
 [scala type="section" value="call-semantics-drop" file="Examples"]
 
+If you do not want to receive the initial value, you may use `silentAttach()` instead of `attach()`. Another possibility would be to use `tail.attach()`. However, this will only work for state channels with a single initial value. Buffers, dictionaries and sets on the other hand have several initial values.
+
 ### Cycles
 Certain propagation flows may lead to cycles:
 
@@ -130,6 +132,36 @@ Certain propagation flows may lead to cycles:
 Setting ``todo`` will result in an infinite loop. Such flows are detected and will lead to a run-time exception. Otherwise, the application would block indefinitely which makes debugging more difficult.
 
 If a cycle as in the above example is expected, use the combinator ``filterCycles`` to make it explicit. This will ignore value propagations caused by a cycle.
+
+### Subscription channels
+`Sub` is short for *subscription* and its purpose is to take values as well as channels.
+[scala type="section" file="Examples" value="sub"]
+
+### Binary channels
+A binary channel (`Bin`) can be used to communicate between two components. Values produced on `Bin` will be propagated to `left` and `right`, but not between those two. It can be used for two-way binding.
+[scala type="section" file="Examples" value="bin"]
+
+### Dependency channels
+Consider `right = x + width`. Obviously the following holds: `x = right - width`. A dependency channel (`Dep`) allows you to express such dependencies in code:
+
+```scala
+val right: Dep[Double] = x.dep[Double](_ + width, _ - width)
+```
+
+If you update `right`, it will re-compute `x`. This is not only limited to equations, but can be used for any invertible operation.
+
+Note that `Dep` is conceptually related to `biMap`. The difference is that `biMap` only deals with single values, whereas `Dep` is an extension of `Sub` which supports channel subscriptions.
+
+### Picklers
+This feature relies on url[https://github.com/lihaoyi/upickle-pprint]{uPickle} for serialising. You will need to add the following dependency:
+
+```scala
+libraryDependencies += "pl.metastack" %%  "metarx-upickle" % "%version%"  // Scala
+libraryDependencies += "pl.metastack" %%% "metarx-upickle" % "%version%"  // Scala.js
+```
+
+Use it as follows:
+[scala type="section" file="Examples" value="pickling"]
 
 ## Buffers
 Buffers are reactive lists. State changes such as row additions, updates or removals are encoded as delta objects. This allows to reflect these changes directly in the DOM, without having to re-render the entire list. ``Buffer[T]`` is therefore more efficient than ``Channel[Seq[T]]`` when dealing with list changes.
@@ -160,6 +192,10 @@ All streaming operations that a buffer provides are implemented in terms of the 
 
 ## Dictionaries
 Dictionaries are unordered maps from ``A`` to ``B``. MetaRx abbreviates the type as ``Dict``.
+
+### Mapping buffers
+If you want to map each element in a buffer to a value, you can use `mapTo`:
+[scala type="section" value="mapTo" file="Examples"]
 
 ## Sets
 Reactive sets are implemented as ``BufSet``[footnote]{This name was chosen as code{Set} would have collided with Scala's implementation.}.

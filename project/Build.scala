@@ -91,7 +91,7 @@ object Build extends sbt.Build {
   lazy val upickleJVM = upickle.jvm
 
   lazy val manual = project.in(file("manual"))
-    .dependsOn(jvm)
+    .dependsOn(jvm, upickleJVM)
     .enablePlugins(BuildInfoPlugin)
     .settings(SharedSettings: _*)
     .settings(

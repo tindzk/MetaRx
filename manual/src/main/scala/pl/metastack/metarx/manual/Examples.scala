@@ -216,4 +216,61 @@ object Examples extends SectionSupport {
     buf += 4
     buf.clear()
   }
+
+  section("bin") {
+    val bin = Bin(0)
+
+    def componentA(): Unit =
+      bin.left.attach { x =>
+        println(s"Component A received: $x")
+        if (x == 3) bin.right := 42
+      }
+
+    def componentB(): Unit = {
+      bin.right.attach(x => println(s"Component B received: $x"))
+      (1 to 3).foreach(bin.left := _)
+    }
+
+    componentA()  // Sends 42 to component B if current value is 3
+    componentB()  // Sends 1..3 to component A
+
+    // `bin` is a state channel and stores the current value
+    println(s"Current value: ${bin.get}")
+
+    bin := 23  // Broadcast to both components
+  }
+
+  section("pickling") {
+    import pl.metastack.metarx.Upickle._
+    import upickle.default._
+
+    val buffer = Buffer(1, 2, 3)
+
+    val json = write(buffer)
+    println(json)
+
+    val decoded = read[Buffer[Int]](json)
+    println(decoded)
+  }
+
+  section("sub") {
+    val x = Var(42)
+
+    val sub = Sub(23)
+    sub.attach(println)
+
+    sub := x  // `sub` will subscribe all values produced on `x`
+    x := 200  // Gets propagated to `sub`
+
+    sub := 10 // Cancel subscription and set value to 10
+    x := 404  // Doesn't get propagated to `sub`
+  }
+
+  section("mapTo") {
+    val buf = Buffer(1, 2, 3)
+    val map = buf.mapTo(_ * 2)
+
+    buf += 4
+    println(map.buffer.get)
+  }
 }
