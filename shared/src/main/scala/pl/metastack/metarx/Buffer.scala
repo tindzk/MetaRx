@@ -269,6 +269,7 @@ trait PollBuffer[T]
   with reactive.stream.FilterOrdered[ReadBuffer, T]
   with reactive.stream.MapExtended[ReadBuffer, T]
   with reactive.stream.AbsoluteOrder[ReadBuffer, T]
+  with reactive.stream.Concatenate[ReadBuffer, T]
 {
   import Buffer.Delta
   import Buffer.Position
