@@ -210,4 +210,17 @@ class BufferTest extends CompatTest {
     string.attach(results += _)
     assertEquals(results, Seq("a, b, c"))
   }
+
+  test("Invalid removal") {
+    val buf = Buffer[String]()
+    buf ++= Seq("green", "blue")
+
+    try {
+      buf -= "red"  // Invalid removal
+    } catch {
+      case e: AssertionError =>
+    } finally {
+      buf.clear()
+    }
+  }
 }

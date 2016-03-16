@@ -594,15 +594,17 @@ case class UniChildChannel[T, U](parent: ReadChannel[T],
 
       inProcess = true
 
-      observer(value) match {
-        case Result.Next(values @ _*) =>
-          values.foreach(produce)
-        case Result.Done(values @ _*) =>
-          values.foreach(produce)
-          dispose()
+      try {
+        observer(value) match {
+          case Result.Next(values@_*) =>
+            values.foreach(produce)
+          case Result.Done(values@_*) =>
+            values.foreach(produce)
+            dispose()
+        }
+      } finally {
+        inProcess = false
       }
-
-      inProcess = false
     }
   }
 
