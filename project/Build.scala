@@ -86,7 +86,7 @@ object Build extends sbt.Build {
       )
     )
 
-  lazy val js = metaRx.js
+  lazy val js = metaRx.js.enablePlugins(com.thoughtworks.sbtScalaJsMap.ScalaJsMap)
   lazy val jvm = metaRx.jvm
 
   lazy val upickleJS = upickle.js
