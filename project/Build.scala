@@ -53,6 +53,7 @@ object Build extends sbt.Build {
       autoAPIMappings := true,
       apiMappings += (scalaInstance.value.libraryJar -> url(s"http://www.scala-lang.org/api/${scalaVersion.value}/"))
     )
+    .jsConfigure(_.enablePlugins(com.thoughtworks.sbtScalaJsMap.ScalaJsMap))
     .jsSettings(
       libraryDependencies +=
         "org.scalatest" %%% "scalatest" % Dependencies.ScalaTest % "test",
@@ -86,7 +87,7 @@ object Build extends sbt.Build {
       )
     )
 
-  lazy val js = metaRx.js.enablePlugins(com.thoughtworks.sbtScalaJsMap.ScalaJsMap)
+  lazy val js = metaRx.js
   lazy val jvm = metaRx.jvm
 
   lazy val upickleJS = upickle.js
