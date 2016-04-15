@@ -53,6 +53,7 @@ object Build extends sbt.Build {
       autoAPIMappings := true,
       apiMappings += (scalaInstance.value.libraryJar -> url(s"http://www.scala-lang.org/api/${scalaVersion.value}/"))
     )
+    .jsConfigure(_.enablePlugins(com.thoughtworks.sbtScalaJsMap.ScalaJsMap))
     .jsSettings(
       libraryDependencies +=
         "org.scalatest" %%% "scalatest" % Dependencies.ScalaTest % "test",
