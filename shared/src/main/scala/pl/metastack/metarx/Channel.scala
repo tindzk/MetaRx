@@ -747,11 +747,10 @@ trait ChannelDefaultSize[T] {
     foldLeft(0) { case (acc, cur) => acc + 1 }
 }
 
-trait RootChannel[T]
-  extends Channel[T]
-  with ChannelDefaultSize[T]
-{
-  def dispose() {
+trait ChannelDefaultDispose[T] {
+  private[metarx] val children: Array[ChildChannel[T, _]]
+
+  def dispose(): Unit = {
     children.foreach(_.dispose())
     children.clear()
   }
@@ -762,12 +761,16 @@ trait ReadStateChannel[T] extends ReadChannel[T] {
 }
 
 /** In Rx terms, a [[StateChannel]] can be considered a cold observable. */
-trait StateChannel[T] extends Channel[T] with ReadStateChannel[T] {
+trait StateChannel[T]
+  extends Channel[T]
+  with ReadStateChannel[T]
+  with ChannelDefaultDispose[T] {
+
   /** Sets and propagates value to children */
   def set(value: T): Unit
 
   /** @see [[set]] */
-  def :=(value: T) = set(value)
+  def :=(value: T): Unit = set(value)
 
   def update(f: T => T): Unit = set(f(get))
 
@@ -782,9 +785,9 @@ trait StateChannel[T] extends Channel[T] with ReadStateChannel[T] {
       fwdValue => { cur = Some(fwdValue); Result.Next(Some(l.get(fwdValue))) },
       bwdValue => Result.Next(Some(l.set(cur.get)(bwdValue))))
   }*/
-
-  def dispose() {
-    children.foreach(_.dispose())
-    children.clear()
-  }
 }
+
+trait RootChannel[T]
+  extends Channel[T]
+  with ChannelDefaultSize[T]
+  with ChannelDefaultDispose[T]

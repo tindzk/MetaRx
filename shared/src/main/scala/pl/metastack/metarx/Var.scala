@@ -37,8 +37,11 @@ object Var {
 }
 
 /** Upon each subscription, emits `value`, which is evaluated lazily. */
-class LazyVar[T](value: => T) extends StateChannel[T] with ChannelDefaultSize[T] {
-  override def set(value: T): Unit = {}  // TODO Should not be declared
+class LazyVar[T](value: => T)
+  extends Channel[T]
+  with ReadStateChannel[T]
+  with ChannelDefaultSize[T]
+  with ChannelDefaultDispose[T] {
   override def get: T = value
   override def flush(f: T => Unit): Unit = f(value)
 
@@ -48,7 +51,7 @@ class LazyVar[T](value: => T) extends StateChannel[T] with ChannelDefaultSize[T]
 }
 
 object LazyVar {
-  def apply[T](value: => T) = new LazyVar(value)
+  def apply[T](value: => T): LazyVar[T] = new LazyVar(value)
 }
 
 /**
@@ -74,6 +77,6 @@ class PtrVar[T](change: ReadChannel[_], _get: => T, _set: T => Unit)
 }
 
 object PtrVar {
-  def apply[T](change: ReadChannel[_], get: => T, set: T => Unit) =
+  def apply[T](change: ReadChannel[_], get: => T, set: T => Unit): PtrVar[T] =
     new PtrVar[T](change, get, set)
 }
