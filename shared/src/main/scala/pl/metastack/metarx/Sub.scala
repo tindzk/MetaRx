@@ -29,7 +29,12 @@ class Sub[T](init: T) extends Var[T](init) {
     new Dep(this, fwd, bwd)
 
   override def toString = s"Sub()"
-  override def dispose(): Unit = detach()
+
+  override def dispose(): Unit = {
+    detach()
+    children.foreach(_.dispose())
+    children.clear()
+  }
 }
 
 object Sub {
