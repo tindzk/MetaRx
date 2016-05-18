@@ -49,15 +49,6 @@ object Operators {
     def ||(argument: => Boolean): ReadChannel[Out] = map(_ || argument)
 
     def unary_! = map(!_)
-
-    @deprecated("Use `!ch` instead", "v0.1.5")
-    def isFalse: ReadChannel[Out] = unary_!
-
-    @deprecated("Use `collect { case true => () }` instead", "v0.1.5")
-    def onTrue: ReadChannel[Unit] = collect { case true => () }
-
-    @deprecated("Use `collect { case false => () }` instead", "v0.1.5")
-    def onFalse: ReadChannel[Unit] = collect { case false => () }
   }
 
   trait NumericOps[T, Out, ZipOut] extends Base[T, Out, T, ZipOut] {

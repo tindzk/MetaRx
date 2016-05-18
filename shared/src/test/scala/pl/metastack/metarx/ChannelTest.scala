@@ -748,8 +748,8 @@ class ChannelTest extends CompatTest {
     ch1 := false
     assertEquals(states, mutable.ArrayBuffer(false, true))
 
-    val trueRes = ch1.onTrue
-    val falseRes = ch1.onFalse
+    val trueRes = ch1.collect { case true => () }
+    val falseRes = ch1.collect { case false => () }
 
     var numTrues = 0
     trueRes.attach(_ => numTrues += 1)
@@ -773,7 +773,7 @@ class ChannelTest extends CompatTest {
     val opt = Opt[Boolean]()
     var count = 0
 
-    val trueCh = opt.onTrue
+    val trueCh = opt.collect { case Some(true) => () }
     trueCh.attach(_ => count += 1)
 
     opt := false
