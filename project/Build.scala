@@ -7,15 +7,16 @@ import sbtbuildinfo.BuildInfoPlugin.autoImport._
 
 object Build extends sbt.Build {
   object Dependencies {
-    val ScalaTest = "3.0.0-M15"
+    val ScalaTest = "3.0.0-M16-SNAP4"
     val MetaDocs  = "0.1.1"
-    val Upickle   = "0.3.7"
+    val Upickle   = "0.4.0"
   }
 
   val SharedSettings = Seq(
     name := "MetaRx",
     organization := "pl.metastack",
-    scalaVersion := "2.11.7",
+    scalaVersion := "2.11.8",
+    // crossScalaVersions := Seq("2.12.0-M4", "2.11.8"),
     scalacOptions := Seq(
       "-unchecked",
       "-deprecation",
