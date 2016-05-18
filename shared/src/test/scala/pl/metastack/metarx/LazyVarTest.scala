@@ -45,10 +45,10 @@ class LazyVarTest extends FunSuite {
     filter.map(_ * 2).attach(value => values += value)
     assert(values == Seq(84))
 
-    ch := 1
+    ch ! 1
     assert(values == Seq(84))
 
-    ch := 2
+    ch ! 2
     assert(values == Seq(84, 4))
   }
 
@@ -60,10 +60,10 @@ class LazyVarTest extends FunSuite {
     take.map(_ + 1).attach(values += _)
     assert(values == Seq(43))
 
-    ch := 1
+    ch ! 1
     assert(values == Seq(43, 2))
 
-    ch := 1
+    ch ! 1
     assert(values == Seq(43, 2))
   }
 

@@ -6,14 +6,14 @@ class Dep[T, U] private[metarx](sub: Sub[T],
                                 bwd: ReadChannel[U] => ReadChannel[T])
   extends Sub[U](null.asInstanceOf[U]) {
   sub.attach { s =>
-    super.produce(fwd(Var(s)))
+    super.set(fwd(Var(s)))
   }
 
-  override def produce(value: ReadChannel[U]): Unit = {
+  override def set(value: ReadChannel[U]): Unit = {
     sub := bwd(value)
-    super.produce(value)
+    super.set(value)
   }
 
-  override def produce(value: U): Unit =
+  override def set(value: U): Unit =
     sub := bwd(Var(value))
 }

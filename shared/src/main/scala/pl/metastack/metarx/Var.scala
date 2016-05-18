@@ -8,7 +8,11 @@ class Var[T](value: T)
   with reactive.mutate.PartialChannel[T]
 {
   private val v = new AtomicReference(value)
-  attach(v.set)
+
+  def set(value: T): Unit = {
+    v.set(value)
+    produce(value)
+  }
 
   def flush(f: T => Unit): Unit = f(v.get)
 
@@ -34,6 +38,7 @@ object Var {
 
 /** Upon each subscription, emits `value`, which is evaluated lazily. */
 class LazyVar[T](value: => T) extends StateChannel[T] with ChannelDefaultSize[T] {
+  override def set(value: T): Unit = {}  // TODO Should not be declared
   override def get: T = value
   override def flush(f: T => Unit): Unit = f(value)
 
@@ -52,11 +57,13 @@ object LazyVar {
   * If a value v is produced on the resulting channel instead, then set(v) is
   * called.
   */
-class PtrVar[T](change: ReadChannel[_], _get: => T, set: T => Unit)
+class PtrVar[T](change: ReadChannel[_], _get: => T, _set: T => Unit)
   extends StateChannel[T] with ChannelDefaultSize[T]
 {
   val sub = attach(set)
   change.attach(_ => produce())
+
+  override def set(value: T): Unit = _set(value)
 
   override def get: T = _get
   override def flush(f: T => Unit): Unit = f(get)

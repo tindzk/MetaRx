@@ -29,7 +29,7 @@ class ChannelTest extends CompatTest {
     assertEquals(map(a), 1)
     assertEquals(map(b), 2)
 
-    a := 1
+    a ! 1
 
     assertEquals(map(a), 1)
     assertEquals(map(b), 2)
@@ -49,7 +49,7 @@ class ChannelTest extends CompatTest {
   test("distinct()") {
     val ch = Var(1)
     val dis = ch.distinct
-    ch := 1
+    ch ! 1
     var sum = 0
     dis.attach(sum += _)
     assertEquals(sum, 1)
@@ -106,14 +106,14 @@ class ChannelTest extends CompatTest {
     ch.take(2).attach(items += _)
     assertEquals(ch.children.size, 1)
 
-    ch := 1
-    ch := 2
+    ch ! 1
+    ch ! 2
 
     assertEquals(items, Seq(1, 2))
     assertEquals(ch.children.size, 0)
 
-    ch := 3
-    ch := 4
+    ch ! 3
+    ch ! 4
 
     assertEquals(items, Seq(1, 2))
   }
@@ -124,9 +124,9 @@ class ChannelTest extends CompatTest {
     var items = mutable.ArrayBuffer.empty[Int]
     ch.take(2).attach(items += _)
 
-    ch := 1
-    ch := 2
-    ch := 3
+    ch ! 1
+    ch ! 2
+    ch ! 3
 
     assertEquals(items, Seq(0, 1))
   }
@@ -162,8 +162,8 @@ class ChannelTest extends CompatTest {
     dch.attach(arr  += _)
     dch.attach(arr2 += _)
 
-    ch := 23
-    ch := 3
+    ch ! 23
+    ch ! 3
 
     assertEquals(arr,  mutable.ArrayBuffer(42, 23))
     assertEquals(arr2, mutable.ArrayBuffer(42, 23))
@@ -176,9 +176,9 @@ class ChannelTest extends CompatTest {
     val arr = mutable.ArrayBuffer.empty[Int]
     dch.attach(arr += _)
 
-    ch := 50
-    ch := 10
-    ch := 60
+    ch ! 50
+    ch ! 10
+    ch ! 60
 
     assertEquals(arr, mutable.ArrayBuffer(42, 50))
   }
@@ -189,10 +189,10 @@ class ChannelTest extends CompatTest {
     var sum = 0
     ch.drop(2).attach(sum += _)
 
-    ch := 1
-    ch := 2
-    ch := 3
-    ch := 4
+    ch ! 1
+    ch ! 2
+    ch ! 3
+    ch ! 4
 
     assertEquals(sum, 3 + 4)
   }
@@ -205,7 +205,7 @@ class ChannelTest extends CompatTest {
     dch.attach(arr += _)
     dch.attach(arr += _)
 
-    ch := 5
+    ch ! 5
 
     assertEquals(arr, mutable.ArrayBuffer(5, 5))
   }
@@ -333,11 +333,11 @@ class ChannelTest extends CompatTest {
 
     var sum = 0
     map.attach(value => sum += value)
-    ch := 42
+    ch ! 42
     assertEquals(sum, 43)
 
     map.attach(value => sum += value + 1)
-    ch := 43
+    ch ! 43
     assertEquals(sum, 43 + 44 + 45)
   }
 
@@ -352,7 +352,7 @@ class ChannelTest extends CompatTest {
 
     assertEquals(values, Seq((0, 1)))
 
-    ch := 2
+    ch ! 2
     assertEquals(values, Seq((0, 1), (2, 1)))
   }
 
@@ -365,17 +365,17 @@ class ChannelTest extends CompatTest {
     var value = (-1, -1)
     zip.attach(value = _)
 
-    ch2 := 42
+    ch2 ! 42
     assertEquals(value, (0, 42))
 
     ch := 23
-    ch2 := 42
+    ch2 ! 42
     assertEquals(value, (23, 42))
 
     ch := 24
     assertEquals(value, (23, 42))
 
-    ch2 := 43
+    ch2 ! 43
     assertEquals(value, (24, 43))
   }
 
@@ -394,7 +394,6 @@ class ChannelTest extends CompatTest {
     var2 := 4
     assertEquals(values, Seq((1, 2), (3, 2), (3, 4)))
   }
-
 
   test("zip() with multiple inputs") {
     val ch = Var(0)
@@ -425,7 +424,7 @@ class ChannelTest extends CompatTest {
 
     assertEquals(values, Seq(1))
 
-    ch := 2
+    ch ! 2
     assertEquals(values, Seq(1, 3))
   }
 
@@ -441,12 +440,12 @@ class ChannelTest extends CompatTest {
     var cur = -1
     fmap.attach(cur = _)
 
-    ch := 1
+    ch ! 1
     assertEquals(cur, 0)
     assertEquals(values, mutable.ArrayBuffer(0))
 
-    ch := 2
-    ch2 := 2 /* Previous handlers attached to ch2 must be still valid. */
+    ch ! 2
+    ch2 ! 2 /* Previous handlers attached to ch2 must be still valid. */
     assertEquals(cur, 2)
     assertEquals(values, mutable.ArrayBuffer(0, 2))
   }
@@ -465,15 +464,15 @@ class ChannelTest extends CompatTest {
     var cur = -1
     fmap.attach(cur = _)
 
-    ch := 0
+    ch ! 0
     assertEquals(cur, 2)
-    ch2 := 42
+    ch2 ! 42
     assertEquals(cur, 42)
 
-    ch := 1
+    ch ! 1
     assertEquals(cur, 3)
-    ch3 := 42
-    ch2 := 50 /* ch2 should not be attached anymore to flatMap(). */
+    ch3 ! 42
+    ch2 ! 50 /* ch2 should not be attached anymore to flatMap(). */
     assertEquals(cur, 42)
   }
 
@@ -491,7 +490,7 @@ class ChannelTest extends CompatTest {
     val a = ch.flatMapCh(cur => cur)
     val b = ch.flatMapCh(cur => cur)
 
-    ch := Var(42)
+    ch ! Var(42)
   }
 
   /* test("flatMapCh()") {
@@ -523,10 +522,10 @@ class ChannelTest extends CompatTest {
     var sum = 0
     ch2.attach(sum += _)
 
-    map := 1
+    map ! 1
     ch := 0
 
-    map := 5
+    map ! 5
     assertEquals(sum, 5)
   }
 
@@ -554,10 +553,10 @@ class ChannelTest extends CompatTest {
 
     val ch = chIn.writeTo(chOut)
 
-    chIn := 1
+    chIn ! 1
     assertEquals(out, -1)
 
-    ch := 1
+    ch ! 1
     assertEquals(out, 1)
   }
 
@@ -570,10 +569,10 @@ class ChannelTest extends CompatTest {
 
     assertEquals(out, 5)
 
-    ch := 1
+    ch ! 1
     assertEquals(out, 1)
 
-    ch2 := 2
+    ch2 ! 2
     assertEquals(out, 2)
   }
 
@@ -585,7 +584,7 @@ class ChannelTest extends CompatTest {
 
     assertEquals(out, -1)
 
-    ch := 43
+    ch ! 43
     assertEquals(out, 43)
   }
 
@@ -595,8 +594,8 @@ class ChannelTest extends CompatTest {
     var states = mutable.ArrayBuffer.empty[Boolean]
     ch.isEmpty.attach(states += _)
 
-    ch := 1
-    ch := 2
+    ch ! 1
+    ch ! 2
 
     assertEquals(states, mutable.ArrayBuffer(true, false))
   }
@@ -607,7 +606,7 @@ class ChannelTest extends CompatTest {
     var states = mutable.ArrayBuffer.empty[Boolean]
     ch.isEmpty.attach(states += _)
 
-    ch := 1
+    ch ! 1
 
     assertEquals(states, mutable.ArrayBuffer(false))
   }
@@ -618,8 +617,8 @@ class ChannelTest extends CompatTest {
     var states = mutable.ArrayBuffer.empty[Boolean]
     ch.nonEmpty.attach(states += _)
 
-    ch := 1
-    ch := 2
+    ch ! 1
+    ch ! 2
 
     assertEquals(states, mutable.ArrayBuffer(false, true))
   }
@@ -630,7 +629,7 @@ class ChannelTest extends CompatTest {
     var states = mutable.ArrayBuffer.empty[Boolean]
     ch.nonEmpty.attach(states += _)
 
-    ch := 1
+    ch ! 1
 
     assertEquals(states, mutable.ArrayBuffer(true))
   }
@@ -642,10 +641,10 @@ class ChannelTest extends CompatTest {
     var states = mutable.ArrayBuffer.empty[Int]
     map.attach(states += _)
 
-    ch := 2
-    ch := 3
-    ch := 1
-    ch := 4
+    ch ! 2
+    ch ! 3
+    ch ! 1
+    ch ! 4
 
     assertEquals(states, mutable.ArrayBuffer(42))
   }
@@ -672,11 +671,11 @@ class ChannelTest extends CompatTest {
     var wrStates = mutable.ArrayBuffer.empty[Int]
     wr.attach(wrStates += _)
 
-    rd := 1
+    rd ! 1
     assertEquals(states, mutable.ArrayBuffer(1))
     assertEquals(wrStates, mutable.ArrayBuffer())
 
-    ch := 2
+    ch ! 2
     assertEquals(states, mutable.ArrayBuffer(1, 2))
     assertEquals(wrStates, mutable.ArrayBuffer(2))
   }
@@ -707,7 +706,7 @@ class ChannelTest extends CompatTest {
 
     assertEquals(varInt.get, 1)
 
-    varInt := 2
+    varInt ! 2
     assertEquals(strValues, Seq("1", "2"))
   }
 
@@ -718,7 +717,7 @@ class ChannelTest extends CompatTest {
     ch.values.attach(intValues += _)
     assertEquals(intValues, Seq.empty)
 
-    ch := Some(42)
+    ch ! Some(42)
     assertEquals(intValues, Seq(42))
   }
 
@@ -759,11 +758,11 @@ class ChannelTest extends CompatTest {
     assertEquals(numTrues, 0)
     assertEquals(numFalses, 1)
 
-    ch1 := true
+    ch1 ! true
     assertEquals(numTrues, 1)
     assertEquals(numFalses, 1)
 
-    ch1 := false
+    ch1 ! false
     assertEquals(numTrues, 1)
     assertEquals(numFalses, 2)
   }
@@ -886,7 +885,7 @@ class ChannelTest extends CompatTest {
     var orStates = mutable.ArrayBuffer.empty[Boolean]
     orRes.attach(orStates += _)
 
-    ch := true
+    ch ! true
 
     orRes.dispose()
     inputBoolean = true
@@ -894,7 +893,7 @@ class ChannelTest extends CompatTest {
     var orStates2 = mutable.ArrayBuffer.empty[Boolean]
     orRes2.attach(orStates2 += _)
 
-    ch := false
+    ch ! false
 
     assertEquals(orStates, mutable.ArrayBuffer(false, true))
     assertEquals(orStates2, mutable.ArrayBuffer(true, true))
@@ -917,14 +916,14 @@ class ChannelTest extends CompatTest {
     andRes << (inputBoolean && ch)
     orRes << (inputBoolean || ch)
 
-    ch := false
-    ch := true
+    ch ! false
+    ch ! true
 
     inputBoolean = true
     andRes << (ch && inputBoolean)
     orRes << (ch || inputBoolean)
-    ch := false
-    ch := true
+    ch ! false
+    ch ! true
 
     assertEquals(andStates, mutable.ArrayBuffer(false, false, false, false, false, true))
     assertEquals(orStates, mutable.ArrayBuffer(false, true, false, true, true, true))
@@ -1007,8 +1006,8 @@ class ChannelTest extends CompatTest {
     var ch1LessOrEqStates = mutable.ArrayBuffer.empty[Boolean]
     ch1LessOrEq.attach(ch1LessOrEqStates += _)
 
-    ch2 := 6
-    ch2 := 5
+    ch2 ! 6
+    ch2 ! 5
 
     assertEquals(ch1BiggerStates, mutable.ArrayBuffer(true, false, true))
     assertEquals(ch1LessOrEqStates, mutable.ArrayBuffer(false, true, false))
@@ -1021,9 +1020,9 @@ class ChannelTest extends CompatTest {
     var ch1BiggerStates = mutable.ArrayBuffer.empty[Boolean]
     ch1Bigger.attach(ch1BiggerStates += _)
 
-    ch1 := 5
-    ch1 := 4
-    ch1 := 6
+    ch1 ! 5
+    ch1 ! 4
+    ch1 ! 6
 
     assertEquals(ch1BiggerStates, mutable.Buffer(false, false, true))
   }
@@ -1053,7 +1052,7 @@ class ChannelTest extends CompatTest {
 
     var i = 0
     val task = scheduler.schedule(500.millis) {
-      ch := i
+      ch ! i
       i += 1
     }
 

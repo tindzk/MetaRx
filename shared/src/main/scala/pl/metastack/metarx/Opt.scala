@@ -8,14 +8,14 @@ object Opt {
 
   def from[T](future: Future[T])(implicit exec: ExecutionContext): Opt[T] = {
     val opt = Opt[T]()
-    future.foreach(v => opt.produce(Some(v)))
+    future.foreach(v => opt.set(Some(v)))
     opt
   }
 
   def fromOption[T](future: Future[Option[T]])
                    (implicit exec: ExecutionContext): Opt[T] = {
     val opt = Opt[T]()
-    future.foreach(opt.produce)
+    future.foreach(opt.set)
     opt
   }
 }

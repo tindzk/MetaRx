@@ -18,12 +18,17 @@ class Bin[T](value: T)
   val left  = LazyVar[T](v.get)
   val right = LazyVar[T](v.get)
 
-  left.attach(v.set)
-  right.attach(v.set)
+  private val l = left.attach(v.set)
+  private val r = right.attach(v.set)
 
   attach { value =>
-    left := value
-    right := value
+    left.produce(value, l)
+    right.produce(value, r)
+  }
+
+  def set(value: T): Unit = {
+    v.set(value)
+    produce(value)
   }
 
   def flush(f: T => Unit): Unit = f(v.get)

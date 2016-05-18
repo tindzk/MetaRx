@@ -68,13 +68,13 @@ trait ReadChannel[T]
 
   def cache: ReadPartialChannel[T] = {
     val res = Opt[T]()
-    res << map(Some(_))
+    attach(res := _)
     res
   }
 
   def cache(default: T): ReadStateChannel[T] = {
     val res = Var[T](default)
-    res << this
+    attach(res := _)
     res
   }
 
@@ -93,8 +93,8 @@ trait ReadChannel[T]
       }
     }
 
-    attach(_ => res := (()))
-    ch.attach(_ => res := (()))
+    attach(_ => res ! (()))
+    ch.attach(_ => res ! (()))
 
     res
   }
@@ -562,7 +562,7 @@ case class FlatChildChannel[T, U](parent: ReadChannel[T],
   def onChannel(ch: ReadChannel[U]) {
     if (subscr != null) subscr.dispose()
     bound = ch
-    subscr = bound.attach(this := _)
+    subscr = bound.attach(this ! _)
   }
 
   def process(value: T) {
@@ -763,9 +763,13 @@ trait ReadStateChannel[T] extends ReadChannel[T] {
 
 /** In Rx terms, a [[StateChannel]] can be considered a cold observable. */
 trait StateChannel[T] extends Channel[T] with ReadStateChannel[T] {
-  def update(f: T => T) {
-    flush(t => produce(f(t)))
-  }
+  /** Sets and propagates value to children */
+  def set(value: T): Unit
+
+  /** @see [[set]] */
+  def :=(value: T) = set(value)
+
+  def update(f: T => T): Unit = set(f(get))
 
   // Shapeless has not been built yet for Scala.js 0.6.0
   /*def value[U](f: shapeless.Lens[T, T] => shapeless.Lens[T, U]) =

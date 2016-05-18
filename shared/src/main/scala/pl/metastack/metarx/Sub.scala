@@ -6,17 +6,17 @@ class Sub[T](init: T) extends Var[T](init) {
   private val subscription =
     new AtomicReference(Option.empty[ReadChannel[Unit]])
 
-  def produce(subscriber: ReadChannel[T]): Unit = {
-    val old = subscription.getAndSet(Some(subscriber.attach(super.produce)))
+  def set(subscriber: ReadChannel[T]): Unit = {
+    val old = subscription.getAndSet(Some(subscriber.attach(super.set)))
     old.foreach(_.dispose())
   }
 
-  def :=(subscriber: ReadChannel[T]): Unit = produce(subscriber)
+  def :=(subscriber: ReadChannel[T]): Unit = set(subscriber)
 
-  override def produce(value: T): Unit = {
+  override def set(value: T): Unit = {
     val old = subscription.getAndSet(None)
     old.foreach(_.dispose())
-    super.produce(value)
+    super.set(value)
   }
 
   def detach(): Unit = {

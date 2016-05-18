@@ -106,7 +106,7 @@ trait WriteBufSet[T]
   val changes: Channel[Delta[T]]
 
   def insert(value: T) {
-    changes := Delta.Insert(value)
+    changes ! Delta.Insert(value)
   }
 
   def insertAll(values: Set[T]) {
@@ -114,7 +114,7 @@ trait WriteBufSet[T]
   }
 
   def remove(value: T) {
-    changes := Delta.Remove(value)
+    changes ! Delta.Remove(value)
   }
 
   def removeAll(values: Set[T]) {
@@ -137,7 +137,7 @@ trait WriteBufSet[T]
   }
 
   def clear() {
-    changes := Delta.Clear()
+    changes ! Delta.Clear()
   }
 }
 

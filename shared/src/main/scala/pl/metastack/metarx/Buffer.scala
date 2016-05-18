@@ -623,27 +623,27 @@ trait WriteBuffer[T]
   val changes: WriteChannel[Delta[T]]
 
   def prepend(element: T) {
-    changes := Delta.Insert(Position.Head(), element)
+    changes ! Delta.Insert(Position.Head(), element)
   }
 
   def append(element: T) {
-    changes := Delta.Insert(Position.Last(), element)
+    changes ! Delta.Insert(Position.Last(), element)
   }
 
   def insertBefore(reference: T, element: T) {
-    changes := Delta.Insert(Position.Before(reference), element)
+    changes ! Delta.Insert(Position.Before(reference), element)
   }
 
   def insertAfter(reference: T, element: T) {
-    changes := Delta.Insert(Position.After(reference), element)
+    changes ! Delta.Insert(Position.After(reference), element)
   }
 
   def replace(reference: T, element: T) {
-    changes := Delta.Replace(reference, element)
+    changes ! Delta.Replace(reference, element)
   }
 
   def remove(element: T) {
-    changes := Delta.Remove(element)
+    changes ! Delta.Remove(element)
   }
 
   def appendAll(buf: Seq[T]) {
