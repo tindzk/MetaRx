@@ -61,7 +61,7 @@ trait ReadChannel[T]
   with reactive.poll.Flush[T]
   with reactive.propagate.Publish[T]
   with Disposable
-{
+{ self =>
   import Channel.Observer
 
   private[metarx] val children = Array[ChildChannel[T, _]]()
@@ -225,6 +225,17 @@ trait ReadChannel[T]
       if (f(value)) Result.Next(value)
       else Result.Next()
     }
+
+  def withFilter(f: T => Boolean): WithFilter = new WithFilter(f)
+
+  class WithFilter(p: T => Boolean) {
+    def map[U](f: T => U): ReadChannel[U] = self.filter(p).map(f)
+    def flatMap[U](f: T => ReadChannel[U]): ReadChannel[U] = self.filter(p).flatMap(f)
+    def foreach[U](f: T => U): Unit = self.filter(p).foreach(f)
+    def withFilter[U](q: T => Boolean): WithFilter = new WithFilter(x => p(x) && q(x))
+  }
+
+  def foreach[U](f: T => U): Unit = attach { x => f(x); () }
 
   def filterCycles: ReadChannel[T] =
     forkUni(value => Result.Next(value), filterCycles = true)

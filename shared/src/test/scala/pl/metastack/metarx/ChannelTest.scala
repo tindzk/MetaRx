@@ -1065,4 +1065,23 @@ class ChannelTest extends CompatTest {
       task.cancel()
     }
   }
+
+  test("for ... yield") {
+    val var1 = Var(1)
+    val var2 = Var(1)
+
+    val values = for {
+      x <- var1 if x > 1
+      y <- var2 if y > 1
+    } yield (x, y)
+
+    val collected = mutable.ArrayBuffer.empty[(Int, Int)]
+    values.attach(collected += _)
+
+    var1 := 2
+    var2 := 5
+    var1 := 3
+
+    assertEquals(collected, Seq((2, 5), (3, 5)))
+  }
 }
