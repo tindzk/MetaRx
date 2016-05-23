@@ -138,7 +138,7 @@ trait DeltaBuffer[T]
     * widget objects are not immutable.
     */
   def map[U](f: T => U): DeltaBuffer[U] = {
-    val mapping = mutable.ArrayBuffer.empty[(T, U)]
+    val mapping = mutable.ListBuffer.empty[(T, U)]
     def cached(key: T): U = mapping.find { case (k, _) => k == key }.get._2
     def remove(key: T) = mapping.remove(
       mapping.indexWhere { case (k, _) => k == key }
@@ -206,7 +206,7 @@ trait StateBuffer[T] extends Disposable {
   import Buffer.Delta
   import Buffer.Position
 
-  private[metarx] val elements = mutable.ArrayBuffer.empty[T]
+  private[metarx] val elements = mutable.ListBuffer.empty[T]
 
   val changes = new RootChannel[Delta[T]] {
     def flush(f: Delta[T] => Unit) {
@@ -263,7 +263,7 @@ trait PollBuffer[T]
 
   val changes: ReadChannel[Delta[T]]
 
-  private[metarx] val elements: mutable.ArrayBuffer[T]
+  private[metarx] val elements: mutable.ListBuffer[T]
 
   def get: Seq[T] = elements
 
@@ -647,13 +647,11 @@ trait WriteBuffer[T]
   }
 
   def appendAll(buf: Seq[T]) {
-    /** toList needed because Seq[T] may change. */
-    buf.toList.foreach(append)
+    buf.foreach(append)
   }
 
   def removeAll(buf: Seq[T]) {
-    /** toList needed because Seq[T] may change. */
-    buf.toList.foreach(remove)
+    buf.foreach(remove)
   }
 }
 
@@ -664,7 +662,7 @@ class Buffer[T]
 {
   def update(f: T => T): Unit = foreach(t => replace(t, f(t)))
 
-  def clear(): Unit = elements.toList.foreach(remove)
+  def clear(): Unit = elements.foreach(remove)
 
   def set(elements: Seq[T]): Unit = {
     clear()
