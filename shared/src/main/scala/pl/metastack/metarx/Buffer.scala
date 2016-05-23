@@ -32,7 +32,6 @@ object Buffer {
     case class Insert[T](position: Position[T], element: T) extends Delta[T]
     case class Replace[T](reference: T, element: T) extends Delta[T]
     case class Remove[T](element: T) extends Delta[T]
-    case class Clear[T]() extends Delta[T]
   }
 
   def apply[T](): Buffer[T] = new Buffer[T]
@@ -88,9 +87,6 @@ trait BufferImplicits {
         attached(element).dispose()
         attached -= element
         refresh()
-      case Delta.Clear() =>
-        attached.clear()
-        result.clear()
     }
 
     result
@@ -121,7 +117,6 @@ trait DeltaBuffer[T]
     changes.attach {
       case Delta.Insert(_, _) => count.update(_ + 1)
       case Delta.Remove(_) => count.update(_ - 1)
-      case Delta.Clear() if count.get != 0 => count := 0
       case _ =>
     }
 
@@ -168,9 +163,6 @@ trait DeltaBuffer[T]
         val res = Delta.Remove(cached(element))
         remove(element)
         res
-      case Delta.Clear() =>
-        mapping.clear()
-        Delta.Clear()
     }
 
     DeltaBuffer(chgs)
@@ -185,8 +177,6 @@ trait DeltaBuffer[T]
         Delta.Replace(f(reference), f(element))
       case Delta.Remove(element) =>
         Delta.Remove(f(element))
-      case Delta.Clear() =>
-        Delta.Clear()
     }
 
     DeltaBuffer(chgs)
@@ -206,7 +196,6 @@ trait DeltaBuffer[T]
         Seq(Dict.Delta.Remove(reference),
           Dict.Delta.Insert(element, f(element)))
       case Delta.Remove(element) => Seq(Dict.Delta.Remove(element))
-      case Delta.Clear() => Seq(Dict.Delta.Clear())
     }
 
     DeltaDict(delta)
@@ -248,8 +237,6 @@ trait StateBuffer[T] extends Disposable {
       val position = elements.indexOf(element)
       assert(position != -1, "remove() with invalid position")
       elements.remove(position)
-    case Delta.Clear() =>
-      elements.clear()
   }
 
   def dispose() {
@@ -322,8 +309,6 @@ trait PollBuffer[T]
 
       case Delta.Remove(element) if f(element) =>
         Delta.Remove(element)
-
-      case Delta.Clear() => Delta.Clear()
     })
 
   def filter$(f: T => Boolean): ReadBuffer[T] = Buffer(elements.filter(f): _*)
@@ -661,15 +646,6 @@ trait WriteBuffer[T]
     changes := Delta.Remove(element)
   }
 
-  def clear() {
-    changes := Delta.Clear()
-  }
-
-  def set(elements: Seq[T]) {
-    clear()
-    elements.foreach(append)
-  }
-
   def appendAll(buf: Seq[T]) {
     /** toList needed because Seq[T] may change. */
     buf.toList.foreach(append)
@@ -686,8 +662,13 @@ class Buffer[T]
   with WriteBuffer[T]
   with StateBuffer[T]
 {
-  def update(f: T => T) {
-    foreach(t => replace(t, f(t)))
+  def update(f: T => T): Unit = foreach(t => replace(t, f(t)))
+
+  def clear(): Unit = elements.toList.foreach(remove)
+
+  def set(elements: Seq[T]): Unit = {
+    clear()
+    elements.foreach(append)
   }
 }
 
