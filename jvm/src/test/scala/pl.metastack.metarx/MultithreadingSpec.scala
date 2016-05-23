@@ -19,4 +19,17 @@ class MultithreadingSpec extends FunSuite {
 
     assert(collected.length == 101)
   }
+
+  test("Thread-safe insertions") {
+    val b = Buffer[Int]()
+    (0 until 1000).par.foreach(b += _)
+    (0 until 1000).foreach(x => assert(b.get.contains(x)))
+  }
+
+  test("Thread-safe removals") {
+    val b = Buffer[Int]()
+    (0 until 1000).par.foreach(b += _)
+    (0 until 1000).par.foreach(b -= _)
+    assert(b.get.isEmpty)
+  }
 }
