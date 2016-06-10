@@ -381,47 +381,59 @@ trait ReadChannel[T]
   }
 
   override def values[U](implicit ev: T <:< Option[U]): ReadChannel[U] =
-    asInstanceOf[ReadChannel[Option[U]]].forkUni {
-      case None        => Result.Next()
-      case Some(value) => Result.Next(value)
+    forkUni { v =>
+      ev(v) match {
+        case None        => Result.Next()
+        case Some(value) => Result.Next(value)
+      }
     }
 
   override def isDefined(implicit ev: T <:< Option[_]): ReadChannel[Boolean] =
-    asInstanceOf[ReadChannel[Option[_]]].isNot(None)
+    map(ev).isNot(None)
 
   override def undefined(implicit ev: T <:< Option[_]): ReadChannel[Boolean] =
-    asInstanceOf[ReadChannel[Option[_]]].is(None)
+    map(ev).is(None)
 
   override def mapValues[U, V](f: U => V)(implicit ev: T <:< Option[U]): ReadChannel[Option[V]] =
-    asInstanceOf[ReadChannel[Option[U]]].forkUni {
-      case None        => Result.Next(None)
-      case Some(value) => Result.Next(Some(f(value)))
+    forkUni { v =>
+      ev(v) match {
+        case None        => Result.Next(None)
+        case Some(value) => Result.Next(Some(f(value)))
+      }
     }
 
   override def mapOrElse[U, V](f: U => V, default: => V)(implicit ev: T <:< Option[U]): ReadChannel[V] = {
     lazy val d = default
-    asInstanceOf[ReadChannel[Option[U]]].forkUni {
-      case None        => Result.Next(d)
-      case Some(value) => Result.Next(f(value))
+    forkUni { v =>
+      ev(v) match {
+        case None        => Result.Next(d)
+        case Some(value) => Result.Next(f(value))
+      }
     }
   }
 
   override def count(implicit ev: T <:< Option[_]): ReadChannel[Int] =
-    asInstanceOf[ReadChannel[Option[_]]].foldLeft(0) {
-      case (acc, Some(_)) => acc + 1
-      case (acc, None)    => 0
+    foldLeft(0) { case (acc, v) =>
+      ev(v) match {
+        case Some(_) => acc + 1
+        case None    => 0
+      }
     }
 
   override def orElse[U](default: => ReadChannel[U])(implicit ev: T <:< Option[U]): ReadChannel[U] =
-    asInstanceOf[ReadChannel[Option[U]]].flatMap {
-      case None        => default
-      case Some(value) => Var(value)
+    flatMap { v =>
+      ev(v) match {
+        case None        => default
+        case Some(value) => Var(value)
+      }
     }
 
   override def contains[U](value: U)(implicit ev: T <:< Option[U]): ReadChannel[Boolean] =
-    asInstanceOf[ReadChannel[Option[U]]].map {
-      case Some(`value`) => true
-      case _             => false
+    map { v =>
+      ev(v) match {
+        case Some(`value`) => true
+        case _             => false
+      }
     }
 }
 
