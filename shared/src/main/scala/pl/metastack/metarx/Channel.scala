@@ -4,6 +4,8 @@ import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ExecutionContext, Future}
 
 object Channel {
+  var ValidateCyclical = true
+
   type Observer[T, U] = T => Result[U]
 
   def apply[T](): Channel[T] =
@@ -615,7 +617,7 @@ case class UniChildChannel[T, U](parent: ReadChannel[T],
         if (inProcess) return
       } else assert(!inProcess, "Cycle found")
 
-      inProcess = true
+      inProcess = Channel.ValidateCyclical
 
       try {
         observer(value) match {
@@ -633,7 +635,7 @@ case class UniChildChannel[T, U](parent: ReadChannel[T],
 
   def flush(f: U => Unit) {
     synchronized {
-      inProcess = true
+      inProcess = Channel.ValidateCyclical
       if (onFlush.isDefined) onFlush.get().foreach(f)
       else parent.flush(observer(_).values.foreach(f))
       inProcess = false
