@@ -767,7 +767,7 @@ trait StateChannel[T]
   with ChannelDefaultDispose[T] {
 
   /** Sets and propagates value to children */
-  def set(value: T): Unit
+  def set(value: T): Unit = produce(value)
 
   /** @see [[set]] */
   def :=(value: T): Unit = set(value)

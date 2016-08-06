@@ -9,14 +9,14 @@ class Var[T](value: T)
 {
   private val v = new AtomicReference(value)
 
-  def set(value: T): Unit = {
+  override def get: T = v.get
+
+  override def produce(value: T): Unit = {
     v.set(value)
-    produce(value)
+    super.produce(value)
   }
 
-  def flush(f: T => Unit): Unit = f(v.get)
-
-  def get: T = v.get
+  override def flush(f: T => Unit): Unit = f(v.get)
 
   override def clear()(implicit ev: T <:< Option[_]): Unit =
     asInstanceOf[StateChannel[Option[_]]].produce(None)
@@ -63,15 +63,19 @@ object LazyVar {
 class PtrVar[T](change: ReadChannel[_], _get: => T, _set: T => Unit)
   extends StateChannel[T] with ChannelDefaultSize[T]
 {
-  val sub = attach(set)
   change.attach(_ => produce())
 
+  override def get: T = _get
   override def set(value: T): Unit = _set(value)
 
-  override def get: T = _get
-  override def flush(f: T => Unit): Unit = f(get)
+  override def produce(value: T): Unit = {
+    set(value)
+    super.produce(value)
+  }
 
-  def produce(): Unit = produce(get, sub)
+  def produce(): Unit = super.produce(get)
+
+  override def flush(f: T => Unit): Unit = f(get)
 
   override def toString = s"PtrVar($get)"
 }

@@ -21,14 +21,12 @@ class Bin[T](value: T)
   private val l = left.attach(v.set)
   private val r = right.attach(v.set)
 
-  attach { value =>
+  override def produce(value: T): Unit = {
+    v.set(value)
     left.produce(value, l)
     right.produce(value, r)
-  }
 
-  def set(value: T): Unit = {
-    v.set(value)
-    produce(value)
+    super.produce(value)
   }
 
   def flush(f: T => Unit): Unit = f(v.get)
