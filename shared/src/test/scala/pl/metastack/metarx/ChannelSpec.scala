@@ -33,7 +33,7 @@ class ChannelSpec extends CompatTest {
       elems.foreach { value =>
         val (lch, rch) = f(ch, value)
         val cmp = ChannelCompare(lch, rch)
-        ch := value
+        ch ! value
         cmp.tick()
       }
 
@@ -44,7 +44,7 @@ class ChannelSpec extends CompatTest {
       elems.foreach { value =>
         val (lch, rch) = f(ch2, value * 2)
         val cmp = ChannelCompare(lch, rch)
-        ch2 := value
+        ch2 ! value
         cmp.tick()
       }
     }
@@ -68,11 +68,11 @@ class ChannelSpec extends CompatTest {
   }
 
   test("equal operators") {
-    forallChVal((ch, value) => (ch === value, (ch !== value) map(!_) ))
+    forallChVal((ch, value) => (ch === value, (ch !== value).map(!_) ))
   }
 
   test("equal operators (2)") {
-    forallCh((ch) => (ch === ch, (ch !== ch) map(!_) ))
+    forallCh(ch => (ch === ch, (ch !== ch).map(!_) ))
   }
 
   /* TODO Generalise values */

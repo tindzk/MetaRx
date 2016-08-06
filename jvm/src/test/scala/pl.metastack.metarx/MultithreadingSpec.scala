@@ -13,7 +13,7 @@ class MultithreadingSpec extends FunSuite {
     val collected = ArrayBuffer.empty[Int]
     ch.attach(collected += _)
 
-    val tasks = (0 until 100).map(i => Future(ch := i))
+    val tasks = (0 until 100).map(i => Future(ch ! i))
     val aggregated = Future.sequence(tasks)
     Await.result(aggregated, 15.seconds)
 

@@ -5,7 +5,8 @@ class Dep[T, U] private[metarx](sub: Sub[T],
                                 fwd: ReadChannel[T] => ReadChannel[U],
                                 bwd: ReadChannel[U] => ReadChannel[T])
   extends Sub[U](null.asInstanceOf[U]) {
-  sub.attach { s =>
+
+  private val attached = sub.attach { s =>
     super.produce(fwd(Var(s)))
   }
 
@@ -16,4 +17,9 @@ class Dep[T, U] private[metarx](sub: Sub[T],
 
   override def produce(value: U): Unit =
     sub := bwd(Var(value))
+
+  override def dispose(): Unit = {
+    attached.dispose()
+    super.dispose()
+  }
 }

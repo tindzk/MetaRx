@@ -29,7 +29,7 @@ class SubTest extends CompatTest {
     y := 21
     assertEquals(values, Seq(0, 23, 42, 404))
 
-    subscriber := 200
+    subscriber ! 200
     assertEquals(values, Seq(0, 23, 42, 404, 200))
 
     subscriber := x + y

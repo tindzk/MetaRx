@@ -10,7 +10,7 @@ class SchedulerTest extends CompatTest {
     val scheduler: Scheduler = Platform.DefaultScheduler
     var i = 0
     val task = scheduler.schedule(500.millis) {
-      ch := i
+      ch ! i
       i += 1
     }
 

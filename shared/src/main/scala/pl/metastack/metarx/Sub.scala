@@ -11,7 +11,10 @@ class Sub[T](init: T) extends Var[T](init) {
     old.foreach(_.dispose())
   }
 
-  def :=(subscriber: ReadChannel[T]): Unit = produce(subscriber)
+  def !(subscriber: ReadChannel[T]): Unit = produce(subscriber)
+
+  def set(subscriber: ReadChannel[T]): Unit = produce(subscriber)
+  def :=(subscriber: ReadChannel[T]): Unit = set(subscriber)
 
   override def produce(value: T): Unit = {
     val old = subscription.getAndSet(None)
@@ -29,7 +32,11 @@ class Sub[T](init: T) extends Var[T](init) {
     new Dep(this, fwd, bwd)
 
   override def toString = s"Sub()"
-  override def dispose(): Unit = detach()
+
+  override def dispose(): Unit = {
+    detach()
+    super.dispose()
+  }
 }
 
 object Sub {

@@ -14,7 +14,7 @@ object Examples extends SectionSupport {
 
     isOne.attach(println)
 
-    ch := 1
+    ch ! 1
   }
 
   import pl.metastack.metarx._
@@ -37,13 +37,13 @@ object Examples extends SectionSupport {
     values.attach(println)
 
     // Simulate change of `m` in UI
-    m := 10
+    m ! 10
   }
 
   section("produce") {
     val ch = Channel[Int]() // initialise
     ch.attach(println)      // attach observer
-    ch := 42                // produce value
+    ch ! 42                // produce value
   }
 
   section("chaining") {
@@ -51,8 +51,8 @@ object Examples extends SectionSupport {
     ch.filter(_ > 3)
       .map(_ + 1)
       .attach(println)
-    ch := 42
-    ch := 1
+    ch ! 42
+    ch ! 1
   }
 
   section("merging") {
@@ -63,7 +63,7 @@ object Examples extends SectionSupport {
     val merged: ReadChannel[String] = a.merge(b).merge(c)
     merged.attach(println)
 
-    c := "test"
+    c ! "test"
   }
 
   section("or") {
@@ -74,7 +74,7 @@ object Examples extends SectionSupport {
     val or: ReadChannel[Unit] = a | b | c
     or.attach(println)
 
-    b := "test"
+    b ! "test"
   }
 
   section("logical-operators") {
@@ -104,7 +104,7 @@ object Examples extends SectionSupport {
     ch.attach(println)
 
     val ch2 = Channel[Int]()
-    ch2 := 42  // Value is lost as ch2 does not have any observers
+    ch2 ! 42  // Value is lost as ch2 does not have any observers
     ch2.attach(println)
   }
 
@@ -143,7 +143,7 @@ object Examples extends SectionSupport {
       (str: String) => map.find(_._2 == str).get._1)
     id   .attach(x => println("id   : " + x))
     idMap.attach(x => println("idMap: " + x))
-    idMap := "three"
+    idMap ! "three"
   }
 
   section("bimap-lens") {
@@ -151,7 +151,7 @@ object Examples extends SectionSupport {
     val test = Var(Test(1, 2))
     val lens = test.biMap(_.b, (x: Int) => test.get.copy(b = x))
     test.attach(println)
-    lens := 42
+    lens ! 42
   }
 
   section("lazyvar") {
@@ -172,16 +172,16 @@ object Examples extends SectionSupport {
     val dch = ch.drop(1)
     dch.attach(println)
     dch.attach(println)
-    ch := 23
+    ch ! 23
   }
 
   sectionNoExec("cycle") {
     val todo = Channel[String]()
     todo.attach { t =>
       println(t)
-      todo := ""
+      todo ! ""
     }
-    todo := "42"
+    todo ! "42"
   }
 
   section("buffer") {
@@ -223,12 +223,12 @@ object Examples extends SectionSupport {
     def componentA(): Unit =
       bin.left.attach { x =>
         println(s"Component A received: $x")
-        if (x == 3) bin.right := 42
+        if (x == 3) bin.right ! 42
       }
 
     def componentB(): Unit = {
       bin.right.attach(x => println(s"Component B received: $x"))
-      (1 to 3).foreach(bin.left := _)
+      (1 to 3).foreach(bin.left ! _)
     }
 
     componentA()  // Sends 42 to component B if current value is 3
@@ -237,7 +237,7 @@ object Examples extends SectionSupport {
     // `bin` is a state channel and stores the current value
     println(s"Current value: ${bin.get}")
 
-    bin := 23  // Broadcast to both components
+    bin ! 23  // Broadcast to both components
   }
 
   section("pickling") {
@@ -260,10 +260,10 @@ object Examples extends SectionSupport {
     sub.attach(println)
 
     sub := x  // `sub` will subscribe all values produced on `x`
-    x := 200  // Gets propagated to `sub`
+    x ! 200  // Gets propagated to `sub`
 
-    sub := 10 // Cancel subscription and set value to 10
-    x := 404  // Doesn't get propagated to `sub`
+    sub ! 10 // Cancel subscription and set value to 10
+    x ! 404  // Doesn't get propagated to `sub`
   }
 
   section("mapTo") {

@@ -8,11 +8,15 @@ class Var[T](value: T)
   with reactive.mutate.PartialChannel[T]
 {
   private val v = new AtomicReference(value)
-  attach(v.set)
 
-  def flush(f: T => Unit): Unit = f(v.get)
+  override def get: T = v.get
 
-  def get: T = v.get
+  override def produce(value: T): Unit = {
+    v.set(value)
+    super.produce(value)
+  }
+
+  override def flush(f: T => Unit): Unit = f(v.get)
 
   override def clear()(implicit ev: T <:< Option[_]): Unit =
     asInstanceOf[StateChannel[Option[_]]].produce(None)
@@ -33,7 +37,11 @@ object Var {
 }
 
 /** Upon each subscription, emits `value`, which is evaluated lazily. */
-class LazyVar[T](value: => T) extends StateChannel[T] with ChannelDefaultSize[T] {
+class LazyVar[T](value: => T)
+  extends Channel[T]
+  with ReadStateChannel[T]
+  with ChannelDefaultSize[T]
+  with ChannelDefaultDispose[T] {
   override def get: T = value
   override def flush(f: T => Unit): Unit = f(value)
 
@@ -43,7 +51,7 @@ class LazyVar[T](value: => T) extends StateChannel[T] with ChannelDefaultSize[T]
 }
 
 object LazyVar {
-  def apply[T](value: => T) = new LazyVar(value)
+  def apply[T](value: => T): LazyVar[T] = new LazyVar(value)
 }
 
 /**
@@ -52,21 +60,32 @@ object LazyVar {
   * If a value v is produced on the resulting channel instead, then set(v) is
   * called.
   */
-class PtrVar[T](change: ReadChannel[_], _get: => T, set: T => Unit)
+class PtrVar[T](change: ReadChannel[_], _get: => T, _set: T => Unit)
   extends StateChannel[T] with ChannelDefaultSize[T]
 {
-  val sub = attach(set)
-  change.attach(_ => produce())
+  private val attached = change.attach(_ => produce())
 
   override def get: T = _get
+  override def set(value: T): Unit = _set(value)
+
+  override def produce(value: T): Unit = {
+    set(value)
+    super.produce(value)
+  }
+
+  def produce(): Unit = super.produce(get)
+
   override def flush(f: T => Unit): Unit = f(get)
 
-  def produce(): Unit = produce(get, sub)
+  override def dispose(): Unit = {
+    attached.dispose()
+    super.dispose()
+  }
 
   override def toString = s"PtrVar($get)"
 }
 
 object PtrVar {
-  def apply[T](change: ReadChannel[_], get: => T, set: T => Unit) =
+  def apply[T](change: ReadChannel[_], get: => T, set: T => Unit): PtrVar[T] =
     new PtrVar[T](change, get, set)
 }

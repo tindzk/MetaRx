@@ -27,13 +27,13 @@ class OptTest extends CompatTest {
 
     y.attach(elems += _)
 
-    x := "a"
+    x ! "a"
 
     ch := 1
-    x := "b"
+    x ! "b"
 
     ch := 2
-    x := "c"
+    x ! "c"
 
     assertEquals(elems, mutable.ArrayBuffer("a0", "b1", "c2"))
 
@@ -41,7 +41,7 @@ class OptTest extends CompatTest {
     val elems2 = mutable.ArrayBuffer.empty[String]
     y.attach(elems2 += _)
     assertEquals(elems, mutable.ArrayBuffer("a0", "b1", "c2"))
-    x := "c"
+    x ! "c"
     assertEquals(elems, mutable.ArrayBuffer("a0", "b1", "c2", "c2"))
     assertEquals(elems2, mutable.ArrayBuffer("c2"))
   }
@@ -79,8 +79,8 @@ class OptTest extends CompatTest {
 
     val x = Opt[Int]()
     x.map(_.isDefined).attach(elements += _)
-    x := Some(42)
-    x := None
+    x ! Some(42)
+    x ! None
 
     assertEquals(elements, mutable.ArrayBuffer(false, true, false))
   }
@@ -93,8 +93,8 @@ class OptTest extends CompatTest {
      .mapValues[Int, Int](_ * 2)
      .orElse(Var(-1))
      .attach(elements += _)
-    x := Some("42")
-    x := None
+    x ! Some("42")
+    x ! None
 
     assertEquals(elements, mutable.ArrayBuffer(-1, 84, -1))
   }
@@ -104,8 +104,8 @@ class OptTest extends CompatTest {
 
     val x = Opt[Int]()
     x.mapOrElse[Int, Int](_ + 1, 42).attach(elements += _)
-    x := Some(23)
-    x := None
+    x ! Some(23)
+    x ! None
 
     assertEquals(elements, mutable.ArrayBuffer(42, 24, 42))
   }
@@ -122,8 +122,8 @@ class OptTest extends CompatTest {
     map.attach(elements += _)
     assertEquals(i, 42)
 
-    x := Some(23)
-    x := None
+    x ! Some(23)
+    x ! None
 
     assertEquals(elements, mutable.ArrayBuffer(42, 24, 42))
   }
@@ -133,9 +133,9 @@ class OptTest extends CompatTest {
 
     val x = Opt[Int]()
     x.contains(5).attach(elements += _)
-    x := Some(23)
-    x := Some(5)
-    x := None
+    x ! Some(23)
+    x ! Some(5)
+    x ! None
 
     assertEquals(elements, mutable.ArrayBuffer(false, false, true, false))
   }

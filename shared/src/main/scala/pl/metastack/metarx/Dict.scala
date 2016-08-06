@@ -157,11 +157,11 @@ trait WriteDict[A, B]
   val changes: WriteChannel[Delta[A, B]]
 
   def insert(key: A, value: B) {
-    changes := Delta.Insert(key, value)
+    changes ! Delta.Insert(key, value)
   }
 
   def update(key: A, value: B) {
-    changes := Delta.Update(key, value)
+    changes ! Delta.Update(key, value)
   }
 
   def insertAll(map: Map[A, B]) {
@@ -169,7 +169,7 @@ trait WriteDict[A, B]
   }
 
   def remove(key: A) {
-    changes := Delta.Remove(key)
+    changes ! Delta.Remove(key)
   }
 
   def removeAll(keys: Seq[A]) {
@@ -177,7 +177,7 @@ trait WriteDict[A, B]
   }
 
   def clear() {
-    changes := Delta.Clear()
+    changes ! Delta.Clear()
   }
 
   def set(map: Map[A, B]) {

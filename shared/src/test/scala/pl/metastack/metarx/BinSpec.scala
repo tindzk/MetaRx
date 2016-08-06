@@ -19,7 +19,7 @@ class BinSpec extends WordSpec with Matchers {
     }
 
     "creating binary channels" should {
-      "be initialized to zero" in {
+      "be initialised to zero" in {
         bin.get should be(0)
       }
       "subscribe to updates from main channel" in {
@@ -39,7 +39,7 @@ class BinSpec extends WordSpec with Matchers {
       }
       "update `left`" in {
         reset()
-        bin.left := 42
+        bin.left ! 42
         values should be(empty)
         leftValues should be(Seq(42))
         rightValues should be(empty)
@@ -47,7 +47,7 @@ class BinSpec extends WordSpec with Matchers {
       }
       "update `right`" in {
         reset()
-        bin.right := 23
+        bin.right ! 23
         values should be(empty)
         leftValues should be(empty)
         rightValues should be(Seq(23))
