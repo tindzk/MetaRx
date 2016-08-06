@@ -35,8 +35,7 @@ class Sub[T](init: T) extends Var[T](init) {
 
   override def dispose(): Unit = {
     detach()
-    children.foreach(_.dispose())
-    children.clear()
+    super.dispose()
   }
 }
 

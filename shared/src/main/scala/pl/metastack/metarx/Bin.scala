@@ -29,6 +29,12 @@ class Bin[T](value: T)
     super.produce(value)
   }
 
+  override def dispose(): Unit = {
+    l.dispose()
+    r.dispose()
+    super.dispose()
+  }
+
   def flush(f: T => Unit): Unit = f(v.get)
 
   def get: T = v.get

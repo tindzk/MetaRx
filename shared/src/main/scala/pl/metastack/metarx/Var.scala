@@ -63,7 +63,7 @@ object LazyVar {
 class PtrVar[T](change: ReadChannel[_], _get: => T, _set: T => Unit)
   extends StateChannel[T] with ChannelDefaultSize[T]
 {
-  change.attach(_ => produce())
+  private val attached = change.attach(_ => produce())
 
   override def get: T = _get
   override def set(value: T): Unit = _set(value)
@@ -76,6 +76,11 @@ class PtrVar[T](change: ReadChannel[_], _get: => T, _set: T => Unit)
   def produce(): Unit = super.produce(get)
 
   override def flush(f: T => Unit): Unit = f(get)
+
+  override def dispose(): Unit = {
+    attached.dispose()
+    super.dispose()
+  }
 
   override def toString = s"PtrVar($get)"
 }
