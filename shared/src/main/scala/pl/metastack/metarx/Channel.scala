@@ -66,7 +66,7 @@ trait ReadChannel[T]
 { self =>
   import Channel.Observer
 
-  private[metarx] val children = Array[ChildChannel[T, _]]()
+  private[metarx] val children = pl.metastack.metarx.Array[ChildChannel[T, _]]()
 
   def cache: ReadPartialChannel[T] = {
     val res = Opt[T]()

@@ -3,27 +3,13 @@ package pl.metastack.metarx
 object Upickle {
   import upickle.default._
 
-  implicit def VarW[T: Writer] = Writer[Var[T]] { case x =>
-    writeJs(x.get)
-  }
+  implicit def varReadWrite[T](implicit readWriter: ReadWriter[T]) : ReadWriter[Var[T]] =
+    readwriter[T].bimap[Var[T]](_.get, Var(_))
 
-  implicit def VarR[T: Reader]: Reader[Var[T]] = Reader[Var[T]] { case x =>
-    Var(implicitly[Reader[T]].read(x))
-  }
+  implicit def optReadWrite[T](implicit readWriter: ReadWriter[Option[T]]): ReadWriter[Opt[T]] =
+    readwriter[Option[T]].bimap[Opt[T]](_.get, Var(_))
 
-  implicit def OptW[T: Writer] = Writer[Opt[T]] {
-    case x => writeJs(x.get)
-  }
+  implicit def bufferReadWrite[T](implicit readWriter: ReadWriter[Seq[T]]): ReadWriter[Buffer[T]] =
+    readwriter[Seq[T]].bimap[Buffer[T]](_.get, Buffer.from(_))
 
-  implicit def OptR[T: Reader]: Reader[Opt[T]] = Reader[Opt[T]] { case x =>
-    new Opt(implicitly[Reader[Option[T]]].read(x))
-  }
-
-  implicit def BufferW[T: Writer] = Writer[Buffer[T]] { case x =>
-    writeJs(x.get)
-  }
-
-  implicit def BufferR[T: Reader]: Reader[Buffer[T]] = Reader[Buffer[T]] { case x =>
-    Buffer.from(implicitly[Reader[Seq[T]]].read(x))
-  }
 }
